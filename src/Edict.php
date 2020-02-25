@@ -50,7 +50,25 @@ class Edict implements ContainerInterface
      */
     public function has($id)
     {
+        if (!$this->hasEntry($id)) {
+            $this->autowire($id);
+        }
+
+        return $this->hasEntry($id);
+    }
+
+    public function hasEntry(string $id): bool
+    {
         return isset($this->entries[$id]) || array_key_exists($id, $this->entries);
+    }
+
+    protected function autowire(string $className): void
+    {
+        if (!class_exists($className)) {
+            return;
+        }
+
+        $this->setEntry($className, fn(ContainerInterface $c) => new $className(), self::TYPE_DYNAMIC);
     }
 
     /**

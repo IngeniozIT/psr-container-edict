@@ -126,4 +126,33 @@ class EdictTest extends TestCase
         $this->assertTrue($container->has($entryId));
         $this->assertSame($entryValue, $container->get($entryId));
     }
+
+    public function testCanAutowireBasicClass(): void
+    {
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, \IngeniozIT\Container\Tests\Mocks\BasicClass::class);
+    }
+
+    /**
+     * Checks if an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $className
+     */
+    protected function assertEntryInstantiatesClass(ContainerInterface $container, string $className): void
+    {
+        $this->assertEntryIsInstanceOf($container, $className, $className);
+    }
+
+    /**
+     * Checks if an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $entryId
+     * @param string $className
+     */
+    protected function assertEntryIsInstanceOf(ContainerInterface $container, string $entryId, string $className): void
+    {
+        $this->assertTrue($container->has($entryId));
+        $this->assertInstanceOf($className, $container->get($entryId));
+    }
 }

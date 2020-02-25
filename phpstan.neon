@@ -7,3 +7,6 @@ parameters:
     -
       message: '#PHPUnit\\Framework\\TestCase::expectException#'
       path: %currentWorkingDirectory%/tests/EdictTest.php
+    -
+      message: '#PHPUnit\\Framework\\Assert::assertInstanceOf#'
+      path: %currentWorkingDirectory%/tests/EdictTest.php

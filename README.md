@@ -79,3 +79,13 @@ $edict->bindMultiple([
 $edict->get('entryId'); // 'foo984321175'
 $edict->get('anotherEntryId'); // 'bar821492074'
 ```
+
+## Autowiring
+
+You can use Edict to instantiate classes without defining a new entry for every class.
+
+```php
+class MyClass { /* ... */ }
+
+$edict->get(MyClass::class); // MyClass instance
+```
