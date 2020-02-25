@@ -10,6 +10,9 @@ use IngeniozIT\Container\ContainerException;
 
 class Edict implements ContainerInterface
 {
+    const TYPE_STATIC = 1;
+    const TYPE_DYNAMIC = 2;
+
     /** @var array<mixed> */
     protected array $entries = [];
 
@@ -29,7 +32,9 @@ class Edict implements ContainerInterface
             throw new NotFoundException("Entry $id not found.");
         }
 
-        return $this->entries[$id];
+        return $this->entries[$id]['type'] === self::TYPE_STATIC ?
+            $this->entries[$id]['value'] :
+            $this->entries[$id]['value']($this);
     }
 
     /**
@@ -51,12 +56,12 @@ class Edict implements ContainerInterface
     /**
      * Sets an entry to a specific value.
      *
-     * @param string $id Identifier of the entry to look for.
+     * @param string $id Identifier of the entry.
      * @param mixed $value Value the entry should hold.
      */
     public function set(string $id, $value): void
     {
-        $this->entries[$id] = $value;
+        $this->setEntry($id, $value, self::TYPE_STATIC);
     }
 
     /**
@@ -69,5 +74,31 @@ class Edict implements ContainerInterface
         foreach ($entries as $id => $value) {
             $this->set($id, $value);
         }
+    }
+
+    /**
+     * Binds a callback to an entry.
+     *
+     * @param string $id Identifier of the entry.
+     * @param callable $callback Callback to execute everytime this entry is
+     * asked.
+     */
+    public function bind(string $id, callable $callback): void
+    {
+        $this->setEntry($id, $callback, self::TYPE_DYNAMIC);
+    }
+
+    /**
+     * @param string $id Identifier of the entry.
+     * @param mixed $value Value of the entry.
+     * @param int $type Type of the entry. Can either be Edict::TYPE_STATIC or
+     * Edict::TYPE_DYNAMIC.
+     */
+    protected function setEntry(string $id, $value, int $type): void
+    {
+        $this->entries[$id] = [
+            'type' => $type,
+            'value' => $value
+        ];
     }
 }

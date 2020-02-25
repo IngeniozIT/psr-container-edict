@@ -78,8 +78,22 @@ class EdictTest extends TestCase
         $this->assertValidEntry($container, 'foo2', 'bar2');
     }
 
+    public function testCanBindCallable(): void
+    {
+        $container = new Edict();
+
+        $container->bind('foo', function (ContainerInterface $c) {
+            static $i = 0;
+            ++$i;
+            return $i;
+        });
+
+        $this->assertValidEntry($container, 'foo', 1);
+        $this->assertValidEntry($container, 'foo', 2);
+    }
+
     /**
-     * Asserts that an entry of a container is valid.
+     * Checks if an entry of a container is valid.
      * @param ContainerInterface $container
      * @param string $entryId
      * @param mixed $entryValue

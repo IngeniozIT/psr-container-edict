@@ -78,4 +78,9 @@ return [
         // has more elements than this process count.
         'php_native_syntax_check_max_processes' => 4,
     ],
+    // Add any issue types (such as 'PhanUndeclaredMethod')
+    // here to inhibit them from being reported
+    'suppress_issue_types' => [
+        'PhanPluginPossiblyStaticClosure',
+    ],
 ];

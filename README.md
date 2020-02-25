@@ -12,21 +12,58 @@ You can set and get any type of value using `set(string $id, $value)` and `get($
 <?php
 use IngeniozIT\Container\Edict;
 
-$container = new Edict();
+$edict = new Edict();
 
-$container->set('entryId', 'entryValue');
+$edict->set('entryId', 'entryValue');
 
-$container->get('entryId'); // 'entryValue'
+$edict->get('entryId'); // 'entryValue'
+```
+
+You can override any entry.
+
+```php
+$edict->set('entryId', 'entryValue');
+$edict->set('entryId', 'anotherEntryValue');
+
+$edict->get('entryId'); // 'anotherEntryValue'
 ```
 
 You can set multiple entries at once using `setMultiple(iterable $entries)`.
 
 ```php
-$container->setMultiple([
+$edict->setMultiple([
     'entryId' => 'entryValue',
     'anotherEntryId' => 'anotherEntryValue',
 ]);
 
-$container->get('entryId'); // 'entryValue'
-$container->get('anotherEntryId'); // 'anotherEntryValue'
+$edict->get('entryId'); // 'entryValue'
+$edict->get('anotherEntryId'); // 'anotherEntryValue'
+```
+
+## Dynamic entries
+
+You can set dynamic entries using `bind(string $id, callable $callback)`.  
+The callback will be called everytime you use `get($id)`.
+
+The callback should accept one parameter of type `\Psr\Container\ContainerInterface`.
+
+```php
+$edict->bind('entryId', fn(ContainerInterface $c): string => 'foo ' . rand());
+
+$edict->get('entryId'); // 'foo571065461'
+$edict->get('entryId'); // 'foo984321175'
+```
+
+You can use the container to get values from other entries.
+
+```php
+use \Psr\Container\ContainerInterface;
+
+$edict->bind('entryId', function (ContainerInterface $c): string {
+    return $c->get('anotherEntry') . rand();
+});
+$edict->set('anotherEntry', 'foo');
+
+$edict->get('entryId'); // 'foo821492074'
+$edict->get('entryId'); // 'foo904232863'
 ```
