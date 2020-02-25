@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 use IngeniozIT\Container\NotFoundException;
 use IngeniozIT\Container\ContainerException;
 
-class Container implements ContainerInterface
+class Edict implements ContainerInterface
 {
     /** @var array<mixed> */
     protected array $entries = [];

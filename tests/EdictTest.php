@@ -5,24 +5,25 @@ declare(strict_types=1);
 namespace IngeniozIT\Container\Tests;
 
 use PHPUnit\Framework\TestCase;
-use IngeniozIT\Container\Container;
+use IngeniozIT\Container\Edict;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * @coversDefaultClass \IngeniozIT\Container\Container
+ * @coversDefaultClass \IngeniozIT\Container\Edict
  */
-class ContainerTest extends TestCase
+class EdictTest extends TestCase
 {
-    public function testCanBeInstantiated(): void
+    public function testIsAContainer(): void
     {
-        $container = new Container();
+        $container = new Edict();
 
-        $this->assertInstanceOf(Container::class, $container);
+        $this->assertInstanceOf(ContainerInterface::class, $container);
     }
 
     public function testThrowsExceptionWhenNoEntryWasFound(): void
     {
-        $container = new Container();
+        $container = new Edict();
 
         $this->expectException(NotFoundExceptionInterface::class);
         $container->get('foo');
@@ -34,7 +35,7 @@ class ContainerTest extends TestCase
      */
     public function testBasicEntries($entryValue): void
     {
-        $container = new Container();
+        $container = new Edict();
 
         $container->set('foo', $entryValue);
 

@@ -1,9 +1,9 @@
 {
-    "name": "ingenioz-it/container",
+    "name": "ingenioz-it/edict",
     "type": "library",
     "description": "Autowiring PSR-11 Container",
     "keywords": ["PSR-11", "Container", "DIC", "IoC"],
-    "homepage": "https://github.com/IngeniozIT/psr-container",
+    "homepage": "https://github.com/IngeniozIT/psr-container-edict",
     "license": "MIT",
     "authors": [
         {

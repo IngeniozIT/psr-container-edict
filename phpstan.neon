@@ -6,4 +6,4 @@ parameters:
   ignoreErrors:
     -
       message: '#PHPUnit\\Framework\\TestCase::expectException#'
-      path: %currentWorkingDirectory%/tests/ContainerTest.php
+      path: %currentWorkingDirectory%/tests/EdictTest.php
