@@ -89,6 +89,18 @@ class Edict implements ContainerInterface
     }
 
     /**
+     * Binds multiple entries to specific callbacks.
+     *
+     * @param iterable<callable> $entries
+     */
+    public function bindMultiple(iterable $entries): void
+    {
+        foreach ($entries as $id => $callback) {
+            $this->bind($id, $callback);
+        }
+    }
+
+    /**
      * @param string $id Identifier of the entry.
      * @param mixed $value Value of the entry.
      * @param int $type Type of the entry. Can either be Edict::TYPE_STATIC or

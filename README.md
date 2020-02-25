@@ -67,3 +67,15 @@ $edict->set('anotherEntry', 'foo');
 $edict->get('entryId'); // 'foo821492074'
 $edict->get('entryId'); // 'foo904232863'
 ```
+
+You can bind multiple entries at once using `bindMultiple(iterable $entries)`.
+
+```php
+$edict->bindMultiple([
+    'entryId' => fn(ContainerInterface $c): string => 'foo ' . rand(),
+    'anotherEntryId' => fn(ContainerInterface $c): string => 'bar ' . rand(),
+]);
+
+$edict->get('entryId'); // 'foo984321175'
+$edict->get('anotherEntryId'); // 'bar821492074'
+```
