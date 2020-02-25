@@ -58,4 +58,16 @@ class Edict implements ContainerInterface
     {
         $this->entries[$id] = $value;
     }
+
+    /**
+     * Sets multiple entries to specific values.
+     *
+     * @param iterable<mixed> $entries
+     */
+    public function setMultiple(iterable $entries): void
+    {
+        foreach ($entries as $id => $value) {
+            $this->set($id, $value);
+        }
+    }
 }

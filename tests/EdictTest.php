@@ -33,14 +33,13 @@ class EdictTest extends TestCase
      * @param mixed $entryValue
      * @dataProvider providerBasicEntries
      */
-    public function testBasicEntries($entryValue): void
+    public function testSupportsBasicEntries($entryValue): void
     {
         $container = new Edict();
 
         $container->set('foo', $entryValue);
 
-        $this->assertTrue($container->has('foo'));
-        $this->assertSame($entryValue, $container->get('foo'));
+        $this->assertValidEntry($container, 'foo', $entryValue);
     }
 
     /**
@@ -64,5 +63,30 @@ class EdictTest extends TestCase
     public static function basicCallable(): bool
     {
         return true;
+    }
+
+    public function testSetMultiple(): void
+    {
+        $container = new Edict();
+
+        $container->setMultiple([
+            'foo' => 'bar',
+            'foo2' => 'bar2'
+        ]);
+
+        $this->assertValidEntry($container, 'foo', 'bar');
+        $this->assertValidEntry($container, 'foo2', 'bar2');
+    }
+
+    /**
+     * Asserts that an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $entryId
+     * @param mixed $entryValue
+     */
+    protected function assertValidEntry(ContainerInterface $container, string $entryId, $entryValue): void
+    {
+        $this->assertTrue($container->has($entryId));
+        $this->assertSame($entryValue, $container->get($entryId));
     }
 }
