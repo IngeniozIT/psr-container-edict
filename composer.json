@@ -1,0 +1,37 @@
+{
+    "name": "ingenioz-it/container",
+    "type": "library",
+    "description": "Autowiring PSR-11 Container",
+    "keywords": ["PSR-11", "Container", "DIC", "IoC"],
+    "homepage": "https://github.com/IngeniozIT/psr-container",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "IngeniozIT",
+            "email": "contact@ingenioz.it"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9",
+        "phan/phan": "^2",
+        "squizlabs/php_codesniffer": "^3",
+        "phpstan/phpstan": "^0"
+    },
+    "provide": {
+        "psr/container-implementation": "1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "IngeniozIT\\Container\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IngeniozIT\\Container\\Tests\\": "tests/"
+        }
+    }
+}

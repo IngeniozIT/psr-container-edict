@@ -1,0 +1,56 @@
+# Code coverage & others
+tmp/
+doc/
+
+# composer
+phpunit.xml
+composer.lock
+vendor/
+log/
+
+# phpunit
+.phpunit.result.cache
+
+# IntelliJ - PhpStorm and PyCharm
+.idea
+.idea/
+.idea/*
+*.iml
+*.ipr
+*.iws
+
+# Netbeans
+nbproject
+.nbproject
+.nbproject/*
+nbproject/*
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Mac OSX
+.DS_Store
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# SublimeText project files
+/*.sublime-project
+*.sublime-workspace
+
+# NPM debug log
+npm-debug.log
+
+# Vim
+*.swp
+
+# Others
+.env
