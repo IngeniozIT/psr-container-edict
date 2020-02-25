@@ -4,4 +4,6 @@ parameters:
     - src
     - tests
   ignoreErrors:
-  checkGenericClassInNonGenericObjectType: false
+    -
+      message: '#PHPUnit\\Framework\\TestCase::expectException#'
+      path: %currentWorkingDirectory%/tests/ContainerTest.php
