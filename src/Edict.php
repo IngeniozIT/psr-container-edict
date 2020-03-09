@@ -182,7 +182,7 @@ class Edict implements ContainerInterface
         $constructor = $reflectionClass->getConstructor();
 
         return $constructor !== null ?
-            array_map([self::class, 'mapParameter'], $constructor->getParameters()):
+            array_map([self::class, 'mapParameter'], $constructor->getParameters()) :
             [];
     }
 

@@ -9,10 +9,12 @@ Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), fram
 * [Informations](#informations)
 * [Installation](#installation)
 * [Documentation](#documentation)
-    1. [Basic entries](#basic-entries)
-    2. [Dynamic entries](#dynamic-entries)
-    3. [Autowiring](#autowiring)
-    4. [Aliases](#aliases)
+    1. [Basic entries (set)](#basic-entries-set)
+    2. [Dynamic entries (bind)](#dynamic-entries-bind)
+    3. [Aliases (alias)](#aliases-alias)
+    4. [Autowiring](#autowiring)
+* [Advanced usage](#advanced-usage)
+    1. [Overriding the container](#overriding-the-container)
 
 ## Informations
 
@@ -40,7 +42,7 @@ git clone https://github.com/IngeniozIT/psr-container-edict.git
 
 ## Documentation
 
-### Basic entries
+### Basic entries (set)
 
 You can set and get any type of value using `set(string $id, $value)` and `get($id)`.
 
@@ -76,7 +78,7 @@ $edict->get('entryId'); // 'entryValue'
 $edict->get('anotherEntryId'); // 'anotherEntryValue'
 ```
 
-### Dynamic entries
+### Dynamic entries (bind)
 
 You can set dynamic entries using `bind(string $id, callable $callback)`.  
 The callback will be called everytime you use `get($id)`.
@@ -116,28 +118,7 @@ $edict->get('entryId'); // 'foo984321175'
 $edict->get('anotherEntryId'); // 'bar821492074'
 ```
 
-### Autowiring
-
-You can use Edict to instantiate classes without defining a new entry for every class.
-
-```php
-class MyClass { /* ... */ }
-
-$edict->get(MyClass::class); // MyClass instance
-```
-
-If the class constructor needs parameters, Edict will automatically resolve the dependencies.
-
-```php
-class MyOtherClass
-{
-    public function __construct(MyClass $myclass) { /* ... */ }
-}
-
-$edict->get(MyOtherClass::class); // MyOtherClass instance
-```
-
-### Aliases
+### Aliases (alias)
 
 Some classes constructors accept interfaces as parameters.  
 In this case, during autowiring, Edict is not able to tell which implementation of this interface you want to use.
@@ -196,3 +177,31 @@ $edict->aliases([
     'topSecretDatabase' => 'database3',
 ]);
 ```
+
+### Autowiring
+
+You can use Edict to instantiate classes without defining a new entry for every class.
+
+```php
+class MyClass { /* ... */ }
+
+$edict->get(MyClass::class); // MyClass instance
+```
+
+If the class constructor needs parameters, Edict will automatically resolve the dependencies.
+
+```php
+class MyOtherClass
+{
+    public function __construct(MyClass $myclass) { /* ... */ }
+}
+
+$edict->get(MyOtherClass::class); // MyOtherClass instance
+```
+
+## Advanced usage
+
+### Overriding the container
+
+By default, an Edict instance will inject itself into the `bind`ed callbacks.  
+Any `\Psr\Container\ContainerInterface` can replace the Edict instance, see `EdictTest::testCanUseAnotherContainer` for an example.

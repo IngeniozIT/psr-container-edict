@@ -213,15 +213,22 @@ class EdictTest extends TestCase
     public function testCanUseAnotherContainer(): void
     {
         $container = new Edict();
-        $newContainer = new ExtendsEdict();
-        $container->set(ContainerInterface::class, $newContainer);
-        $container->bind('useExtendsEdict', function (ContainerInterface $c) {
-            $c->get('foo');
-            return true;
+        $anotherContainer = new ExtendsEdict();
+
+        // set different values to the containers so we can tell them apart
+        $container->set('fooValue', 'main container foo');
+        $anotherContainer->set('fooValue', 'other container foo');
+
+        // set an entry that will use the container's fooValue
+        $container->bind('fooCallback', function (ContainerInterface $c) {
+            return $c->get('fooValue');
         });
 
-        $this->assertTrue($container->get('useExtendsEdict'));
-        $this->assertTrue($newContainer->called);
+        // Inject the secondary container into the main one
+        $container->set(ContainerInterface::class, $anotherContainer);
+
+        // The main one injects the secondary one into its callbacks
+        $this->assertSame('other container foo', $container->get('fooCallback'));
     }
 
     /**
