@@ -16,6 +16,7 @@ class Edict implements ContainerInterface
     const TYPE_CLASS = 4;
     const TYPE_CONSTRUCTOR = 8;
     const TYPE_ALIAS = 16;
+    const TYPE_STATIC = 32;
 
     /** @var array<mixed> */
     protected array $entries = [];
@@ -60,8 +61,10 @@ class Edict implements ContainerInterface
                 return $this->resolveConstructorEntry($id);
             case self::TYPE_ALIAS:
                 return $this->resolveAliasEntry($id);
+            case self::TYPE_STATIC:
+                return $this->resolveStaticEntry($id);
         }
-        return $this->resolveStaticEntry($id);
+        return $this->resolveBasicEntry($id);
     }
 
     /**
@@ -69,9 +72,22 @@ class Edict implements ContainerInterface
      *
      * @return mixed
      */
-    protected function resolveStaticEntry(string $id)
+    protected function resolveBasicEntry(string $id)
     {
         return $this->entries[$id]['value'];
+    }
+
+    /**
+     * Resolves a static entry.
+     * Transforms the static entry into a basic entry so the callback is only
+     * executed once.
+     *
+     * @return mixed
+     */
+    protected function resolveStaticEntry(string $id)
+    {
+        $this->set($id, $this->resolveCallableEntry($id));
+        return $this->get($id);
     }
 
     /**
@@ -241,14 +257,14 @@ class Edict implements ContainerInterface
      */
     public function set(string $id, $value): void
     {
-        $this->addStaticEntry($id, $value);
+        $this->addBasicEntry($id, $value);
     }
 
     /**
      * @param string $id Identifier of the entry.
      * @param mixed $value Value of the entry.
      */
-    protected function addStaticEntry(string $id, $value): void
+    protected function addBasicEntry(string $id, $value): void
     {
         $this->entries[$id] = [
             'type' => self::TYPE_BASIC,
@@ -284,6 +300,39 @@ class Edict implements ContainerInterface
     {
         $this->entries[$id] = [
             'type' => self::TYPE_CALLABLE,
+            'callback' => $callback,
+        ];
+    }
+
+    /**
+     * Binds multiple callbacks to be executed once to several entries.
+     *
+     * @param iterable<callable> $entries entryId => callback
+     */
+    public function bindMultipleStatic(iterable $entries): void
+    {
+        foreach ($entries as $id => $callback) {
+            $this->addStaticEntry($id, $callback);
+        }
+    }
+
+    /**
+     * Binds a callback to be executed once to an entry.
+     * Every subsequent call to get will return the same result.
+     *
+     * @param string $id Identifier of the entry.
+     * @param callable $callback Callback to execute everytime this entry is
+     * asked.
+     */
+    public function bindStatic(string $id, callable $callback): void
+    {
+        $this->addStaticEntry($id, $callback);
+    }
+
+    protected function addStaticEntry(string $id, callable $callback): void
+    {
+        $this->entries[$id] = [
+            'type' => self::TYPE_STATIC,
             'callback' => $callback,
         ];
     }

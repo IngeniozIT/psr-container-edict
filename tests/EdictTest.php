@@ -42,7 +42,7 @@ class EdictTest extends TestCase
     }
 
     /******************************************
-     * BASIC BEHAVIOUR
+     * BASIC ENTRIES
      ******************************************/
 
     /**
@@ -94,6 +94,10 @@ class EdictTest extends TestCase
         $this->assertValidEntry($container, 'foo2', 'bar2');
     }
 
+    /******************************************
+     * DYNAMIC ENTRIES
+     ******************************************/
+
     public function testCanBindCallable(): void
     {
         $container = new Edict();
@@ -131,41 +135,39 @@ class EdictTest extends TestCase
         $this->assertValidEntry($container, 'bar', 2);
     }
 
-    /**
-     * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $entryId
-     * @param mixed $entryValue
-     */
-    protected function assertValidEntry(ContainerInterface $container, string $entryId, $entryValue): void
-    {
-        $this->assertTrue($container->has($entryId));
-        $this->assertSame($entryValue, $container->get($entryId));
-    }
-
     /******************************************
-     * AUTOWIRING
+     * STATIC ENTRIES
      ******************************************/
 
-    public function testCanAutowireBasicClass(): void
+    public function testCanBindStaticEntries(): void
     {
         $container = new Edict();
 
-        $this->assertEntryInstantiatesClass($container, BasicClass::class);
+        $container->bindStatic('foo', fn (ContainerInterface $c) => new FooClass());
+
+        $this->assertSame(
+            $container->get('foo'),
+            $container->get('foo')
+        );
     }
 
-    public function testCanAutowireSimplyWiredClass(): void
+    public function testCanBindMultipleStaticEntries(): void
     {
         $container = new Edict();
 
-        $this->assertEntryInstantiatesClass($container, SimplyWiredClass::class);
-    }
+        $container->bindMultipleStatic([
+            'foo' => fn (ContainerInterface $c) => new FooClass(),
+            'bar' => fn (ContainerInterface $c) => new BarClass(),
+        ]);
 
-    public function testCanAutowireMultiplyWiredClass(): void
-    {
-        $container = new Edict();
-
-        $this->assertEntryInstantiatesClass($container, MultiplyWiredClass::class);
+        $this->assertSame(
+            $container->get('foo'),
+            $container->get('foo')
+        );
+        $this->assertSame(
+            $container->get('bar'),
+            $container->get('bar')
+        );
     }
 
     /******************************************
@@ -229,6 +231,47 @@ class EdictTest extends TestCase
 
         // The main one injects the secondary one into its callbacks
         $this->assertSame('other container foo', $container->get('fooCallback'));
+    }
+
+    /******************************************
+     * AUTOWIRING
+     ******************************************/
+
+    public function testCanAutowireBasicClass(): void
+    {
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, BasicClass::class);
+    }
+
+    public function testCanAutowireSimplyWiredClass(): void
+    {
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, SimplyWiredClass::class);
+    }
+
+    public function testCanAutowireMultiplyWiredClass(): void
+    {
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, MultiplyWiredClass::class);
+    }
+
+    /******************************************
+     * CUSTOM ASSERTIONS
+     ******************************************/
+
+    /**
+     * Checks if an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $entryId
+     * @param mixed $entryValue
+     */
+    protected function assertValidEntry(ContainerInterface $container, string $entryId, $entryValue): void
+    {
+        $this->assertTrue($container->has($entryId));
+        $this->assertSame($entryValue, $container->get($entryId));
     }
 
     /**

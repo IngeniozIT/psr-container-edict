@@ -11,8 +11,9 @@ Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), fram
 * [Documentation](#documentation)
     1. [Basic entries (set)](#basic-entries-set)
     2. [Dynamic entries (bind)](#dynamic-entries-bind)
-    3. [Aliases (alias)](#aliases-alias)
-    4. [Autowiring](#autowiring)
+    3. [Static entries (bindStatic)](#static-entries-bindstatic)
+    4. [Aliases (alias)](#aliases-alias)
+    5. [Autowiring](#autowiring)
 * [Advanced usage](#advanced-usage)
     1. [Overriding the container](#overriding-the-container)
 
@@ -116,6 +117,39 @@ $edict->bindMultiple([
 
 $edict->get('entryId'); // 'foo984321175'
 $edict->get('anotherEntryId'); // 'bar821492074'
+```
+
+### Static entries (bindStatic)
+
+You can use the container to instantiate a single instance of a class that will be used everytime an entry will be called.
+
+Use this to benefit from the lazy loading system.
+
+```php
+$edict->bindStatic('database', function (ContainerInterface $c) {
+    return new PDO(/* ... */);
+});
+
+// Both will be the same PDO instance
+$db1 = $edict->get('database');
+$db2 = $edict->get('database');
+```
+
+You can bind multiple entries at once using `bindMultiple(iterable $entries)`.
+
+```php
+$edict->bindMultipleStatic([
+    'entryId' => fn(ContainerInterface $c) => new PDO(/* ... */);,
+    'anotherEntryId' => fn(ContainerInterface $c) => new mysqli(/* ... */);,
+]);
+
+// Both are the same
+$edict->get('entryId');
+$edict->get('entryId');
+
+// Both are the same
+$edict->get('anotherEntryId');
+$edict->get('anotherEntryId');
 ```
 
 ### Aliases (alias)
