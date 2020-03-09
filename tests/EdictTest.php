@@ -6,11 +6,20 @@ namespace IngeniozIT\Container\Tests;
 
 use PHPUnit\Framework\TestCase;
 use IngeniozIT\Container\Edict;
-use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use IngeniozIT\Container\Tests\Mocks\ExtendsEdict;
-use IngeniozIT\Container\Tests\Mocks\BasicClass;
-use IngeniozIT\Container\Tests\Mocks\SimplyWiredClass;
+use Psr\Container\{
+    ContainerInterface,
+    NotFoundExceptionInterface
+};
+use IngeniozIT\Container\Tests\Mocks\{
+    ExtendsEdict,
+    BasicClass,
+    SimplyWiredClass,
+    FooInterface,
+    FooClass,
+    BarInterface,
+    BarClass,
+    MultiplyWiredClass,
+};
 
 /**
  * @coversDefaultClass \IngeniozIT\Container\Edict
@@ -31,6 +40,10 @@ class EdictTest extends TestCase
         $this->expectException(NotFoundExceptionInterface::class);
         $container->get('foo');
     }
+
+    /******************************************
+     * BASIC BEHAVIOUR
+     ******************************************/
 
     /**
      * @param mixed $entryValue
@@ -130,6 +143,10 @@ class EdictTest extends TestCase
         $this->assertSame($entryValue, $container->get($entryId));
     }
 
+    /******************************************
+     * AUTOWIRING
+     ******************************************/
+
     public function testCanAutowireBasicClass(): void
     {
         $container = new Edict();
@@ -144,26 +161,37 @@ class EdictTest extends TestCase
         $this->assertEntryInstantiatesClass($container, SimplyWiredClass::class);
     }
 
-    /**
-     * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $className
-     */
-    protected function assertEntryInstantiatesClass(ContainerInterface $container, string $className): void
+    public function testCanAutowireMultiplyWiredClass(): void
     {
-        $this->assertEntryIsInstanceOf($container, $className, $className);
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, MultiplyWiredClass::class);
     }
 
-    /**
-     * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $entryId
-     * @param string $className
-     */
-    protected function assertEntryIsInstanceOf(ContainerInterface $container, string $entryId, string $className): void
+    /******************************************
+     * ALIASES
+     ******************************************/
+
+    public function testCanUseAlias(): void
     {
-        $this->assertTrue($container->has($entryId));
-        $this->assertInstanceOf($className, $container->get($entryId));
+        $container = new Edict();
+
+        $container->alias(FooInterface::class, FooClass::class);
+
+        $this->assertEntryIsInstanceOf($container, FooInterface::class, FooClass::class);
+    }
+
+    public function testCanUseAliases(): void
+    {
+        $container = new Edict();
+
+        $container->aliases([
+           FooInterface::class => FooClass::class,
+           BarInterface::class => BarClass::class,
+        ]);
+
+        $this->assertEntryIsInstanceOf($container, FooInterface::class, FooClass::class);
+        $this->assertEntryIsInstanceOf($container, BarInterface::class, BarClass::class);
     }
 
     /**
@@ -192,5 +220,27 @@ class EdictTest extends TestCase
         $containerInterface = $container->get(ContainerInterface::class);
 
         $this->assertSame($newContainer, $containerInterface);
+    }
+
+    /**
+     * Checks if an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $className
+     */
+    protected function assertEntryInstantiatesClass(ContainerInterface $container, string $className): void
+    {
+        $this->assertEntryIsInstanceOf($container, $className, $className);
+    }
+
+    /**
+     * Checks if an entry of a container is valid.
+     * @param ContainerInterface $container
+     * @param string $entryId
+     * @param string $className
+     */
+    protected function assertEntryIsInstanceOf(ContainerInterface $container, string $entryId, string $className): void
+    {
+        $this->assertTrue($container->has($entryId));
+        $this->assertInstanceOf($className, $container->get($entryId));
     }
 }

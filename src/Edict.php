@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace IngeniozIT\Container;
 
 use Psr\Container\ContainerInterface;
-use IngeniozIT\Container\NotFoundException;
-use IngeniozIT\Container\ContainerException;
+use IngeniozIT\Container\{NotFoundException, ContainerException};
 use ReflectionClass;
 
 class Edict implements ContainerInterface
@@ -15,6 +14,7 @@ class Edict implements ContainerInterface
     const TYPE_CALLABLE = 2;
     const TYPE_CLASS = 4;
     const TYPE_CONSTRUCTOR = 8;
+    const TYPE_ALIAS = 16;
 
     /** @var array<mixed> */
     protected array $entries = [];
@@ -57,6 +57,8 @@ class Edict implements ContainerInterface
                 return $this->resolveClassEntry($id);
             case self::TYPE_CONSTRUCTOR:
                 return $this->resolveConstructorEntry($id);
+            case self::TYPE_ALIAS:
+                return $this->resolveAliasEntry($id);
         }
         return $this->resolveStaticEntry($id);
     }
@@ -78,7 +80,9 @@ class Edict implements ContainerInterface
      */
     protected function resolveCallableEntry(string $id)
     {
-        return $this->entries[$id]['callback']($this);
+        return $this->entries[$id]['callback'](
+            $this->get(ContainerInterface::class)
+        );
     }
 
     /**
@@ -108,6 +112,16 @@ class Edict implements ContainerInterface
                 $this->entries[$id]['params']
             )
         );
+    }
+
+    /**
+     * Resolves an entry based on an alias.
+     *
+     * @return mixed
+     */
+    protected function resolveAliasEntry(string $id)
+    {
+        return $this->get($this->entries[$id]['alias']);
     }
 
     /**
@@ -232,7 +246,7 @@ class Edict implements ContainerInterface
     /**
      * Binds multiple entries to specific callbacks.
      *
-     * @param iterable<callable> $entries
+     * @param iterable<callable> $entries entryId => callback
      */
     public function bindMultiple(iterable $entries): void
     {
@@ -258,6 +272,37 @@ class Edict implements ContainerInterface
         $this->entries[$id] = [
             'type' => self::TYPE_CALLABLE,
             'callback' => $callback,
+        ];
+    }
+
+    /**
+     * Binds multiple entries to specific interfaces.
+     *
+     * @param iterable<string> $entries interfaceName => entryId
+     */
+    public function aliases(iterable $entries): void
+    {
+        foreach ($entries as $sourceId => $destId) {
+            $this->alias($sourceId, $destId);
+        }
+    }
+
+    /**
+     * Binds an entry to another entry.
+     *
+     * @param string $sourceId
+     * @param string $destId
+     */
+    public function alias(string $sourceId, string $destId): void
+    {
+        $this->addAliasEntry($sourceId, $destId);
+    }
+
+    protected function addAliasEntry(string $sourceId, string $destId): void
+    {
+        $this->entries[$sourceId] = [
+            'type' => self::TYPE_ALIAS,
+            'alias' => $destId,
         ];
     }
 }

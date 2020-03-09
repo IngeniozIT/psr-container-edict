@@ -1,10 +1,46 @@
 # Edict
 
-Easy DI ConTainer is a PSR-11 implementation.
+Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), framework-agnostic dependency injection container.
 
-# Basic usage
 
-## Static entries
+
+## Table of Contents
+
+* [Informations](#informations)
+* [Installation](#installation)
+* [Documentation](#documentation)
+    * [Basic entries](#basic-entries)
+    * [Dynamic entries](#dynamic-entries)
+    * [Autowiring](#autowiring)
+    * [Aliases](#aliases)
+
+## Informations
+
+| Info | Value |
+|-|-|
+| Current version | [![Packagist Version](https://img.shields.io/packagist/v/ingenioz-it/http-message.svg)](https://packagist.org/packages/ingenioz-it/http-message) |
+| Requires | ![PHP from Packagist](https://img.shields.io/packagist/php-v/ingenioz-it/http-message.svg) |
+| Tests | [![Build Status](https://travis-ci.com/IngeniozIT/psr-http-message.svg?branch=master)](https://travis-ci.com/IngeniozIT/psr-http-message) |
+| Code coverage | [![Code Coverage](https://codecov.io/gh/IngeniozIT/psr-http-message/branch/master/graph/badge.svg)](https://codecov.io/gh/IngeniozIT/psr-http-message) |
+| License | ![Packagist](https://img.shields.io/packagist/l/ingenioz-it/http-message.svg) |
+
+## Installation
+
+Via composer
+
+```sh
+composer require ingenioz-it/edict
+```
+
+Via git
+
+```sh
+git clone https://github.com/IngeniozIT/psr-container-edict.git
+```
+
+## Documentation
+
+### Basic entries
 
 You can set and get any type of value using `set(string $id, $value)` and `get($id)`.
 
@@ -40,7 +76,7 @@ $edict->get('entryId'); // 'entryValue'
 $edict->get('anotherEntryId'); // 'anotherEntryValue'
 ```
 
-## Dynamic entries
+### Dynamic entries
 
 You can set dynamic entries using `bind(string $id, callable $callback)`.  
 The callback will be called everytime you use `get($id)`.
@@ -80,7 +116,7 @@ $edict->get('entryId'); // 'foo984321175'
 $edict->get('anotherEntryId'); // 'bar821492074'
 ```
 
-## Autowiring
+### Autowiring
 
 You can use Edict to instantiate classes without defining a new entry for every class.
 
@@ -101,24 +137,62 @@ class MyOtherClass
 $edict->get(MyOtherClass::class); // MyOtherClass instance
 ```
 
-## Custom parameters
+### Aliases
 
-If the class constructor uses parameters that cannot be automatically resolved, you can bind a callback that will use your Edict's entries.
+Some classes constructors accept interfaces as parameters.  
+In this case, during autowiring, Edict is not able to tell which implementation of this interface you want to use.
+
+You can use `alias(string $sourceId, string $destId)` to bind an interface to one of its implementations.
 
 ```php
-// This class needs a string to be instantiated.
-class NonResolvableClass
-{
-    public function __construct(string $unknownValue) { /* ... */ }
+interface MyInterface { /* ... */ }
+class MyClass implements MyInterface { /* ... */ }
+
+$edict->bind('foo', function (ContainerInterface $container): MyClass {
+    return new MyClass();
 }
+$edict->alias(MyInterface::class, 'foo');
 
-// Set the "unknownValueId" entry to something. We will use this value to instantiate NonResolvableClass.
-$edict->set('unknownValueId', 'foo');
+$edict->get(MyInterface::class); // MyClass instance
+```
 
-// Make NonResolvableClass use the entry "unknownValueId" as constructor parameter.
-$edict->bind(NonResolvableClass::class, function (ContainerInterface $c) {
-    return new NonResolvableClass($c->get('unknownValueId'));
-});
+You can also use Edict's autowiring by giving a class name instead of an entry id.
 
-$edict->get(NonResolvableClass::class); // NonResolvableClass instance that uses unknownValueId.
+```php
+interface MyInterface { /* ... */ }
+class MyClass implements MyInterface { /* ... */ }
+
+$edict->alias(MyInterface::class, MyClass::class);
+
+$edict->get(MyInterface::class); // MyClass instance
+```
+
+You can bind multiple interfaces at once using `aliases(iterable $entries)`.
+
+```php
+$edict->aliases([
+    MyInterface::class => MyClass::class,
+    MyOtherInterface::class => MyOtherClass::class,
+]);
+
+$edict->get(MyInterface::class); // MyClass instance
+$edict->get(MyOtherInterface::class); // MyOtherClass instance
+```
+
+Aliases can also be used to manage your code plugins (databases mapping etc).
+
+```php
+
+$edict->bindMultiple([
+    'database1' => function (ContainerInterface $c) { /* ... */ },
+    'database2' => function (ContainerInterface $c) { /* ... */ },
+    'database3' => function (ContainerInterface $c) { /* ... */ },
+]);
+
+$edict->aliases([
+    'usersDatabase' => 'database1',
+    'monitoringDatabase' => 'database2',
+    'transactionsDatabase' => 'database2',
+    'topSecretDatabase' => 'database3',
+]);
 ```
