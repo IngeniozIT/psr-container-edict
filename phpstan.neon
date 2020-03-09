@@ -13,3 +13,6 @@ parameters:
     -
       message: '#argument of class ReflectionClass constructor expects class#'
       path: %currentWorkingDirectory%/src/Entry/ClassEntry.php
+    -
+      message: '#Call to an undefined method ReflectionType::getName#'
+      path: %currentWorkingDirectory%/src/Entry/ClassEntry.php

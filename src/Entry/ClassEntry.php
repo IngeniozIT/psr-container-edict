@@ -7,6 +7,7 @@ namespace IngeniozIT\Container\Entry;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionParameter;
+use IngeniozIT\Container\NotFoundException;
 
 class ClassEntry implements EdictEntryInterface
 {
@@ -47,10 +48,18 @@ class ClassEntry implements EdictEntryInterface
     /**
      * Get a ReflectionParameter's data as used by Edict.
      * @param  ReflectionParameter $param
+     * @suppress PhanUndeclaredMethod ReflectionType::getName is not documented
+     * yet.
      */
     protected static function getParameterType(ReflectionParameter $param): string
     {
-        return (string)$param->getType();
+        $type = $param->getType();
+
+        if ($type === null) {
+            throw new NotFoundException("Parameter {$param->getName()} has not type. Autowiring is impossible.");
+        }
+
+        return $type->getName();
     }
 
     /**

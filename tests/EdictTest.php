@@ -19,6 +19,7 @@ use IngeniozIT\Container\Tests\Mocks\{
     BarInterface,
     BarClass,
     MultiplyWiredClass,
+    NoTypeParameterClass,
 };
 
 /**
@@ -256,6 +257,15 @@ class EdictTest extends TestCase
         $container = new Edict();
 
         $this->assertEntryInstantiatesClass($container, MultiplyWiredClass::class);
+    }
+
+    public function testInvalidAutowireThrowsException(): void
+    {
+        $container = new Edict();
+
+        $this->expectException(NotFoundExceptionInterface::class);
+
+        $container->get(NoTypeParameterClass::class);
     }
 
     /******************************************
