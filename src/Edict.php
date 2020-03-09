@@ -7,10 +7,11 @@ namespace IngeniozIT\Container;
 use Psr\Container\ContainerInterface;
 use IngeniozIT\Container\{NotFoundException, ContainerException};
 use ReflectionClass;
+use ReflectionParameter;
 
 class Edict implements ContainerInterface
 {
-    const TYPE_STATIC = 1;
+    const TYPE_BASIC = 1;
     const TYPE_CALLABLE = 2;
     const TYPE_CLASS = 4;
     const TYPE_CONSTRUCTOR = 8;
@@ -106,12 +107,17 @@ class Edict implements ContainerInterface
      */
     protected function resolveConstructorEntry(string $id)
     {
-        return new $this->entries[$id]['className'](
-            ...array_map(
-                fn($p) => $this->get($p['type']),
-                $this->entries[$id]['params']
-            )
-        );
+        return new $this->entries[$id]['className'](...$this->resolveParameters($this->entries[$id]['params']));
+    }
+
+    /**
+     * Resolves a set of parameters by their type.
+     * @param  array<array> $parameters
+     * @return mixed[]
+     */
+    protected function resolveParameters(array $parameters)
+    {
+        return array_map(fn($param) => $this->get($param['type']), $parameters);
     }
 
     /**
@@ -174,16 +180,23 @@ class Edict implements ContainerInterface
 
         $reflectionClass = new ReflectionClass($className);
         $constructor = $reflectionClass->getConstructor();
-        if ($constructor !== null) {
-            foreach ($constructor->getParameters() as $parameter) {
-                $constructorParams[] = [
-                    'name' => $parameter->getName(),
-                    'type' => (string)$parameter->getType(),
-                ];
-            }
-        }
 
-        return $constructorParams;
+        return $constructor !== null ?
+            array_map([self::class, 'mapParameter'], $constructor->getParameters()):
+            [];
+    }
+
+    /**
+     * Get a ReflectionParameter's data as used by Edict.
+     * @param  ReflectionParameter $param
+     * @return string[]
+     */
+    protected static function mapParameter(ReflectionParameter $param): array
+    {
+        return [
+            'name' => $param->getName(),
+            'type' => (string)$param->getType(),
+        ];
     }
 
     protected function addClassEntry(string $className): void
@@ -238,7 +251,7 @@ class Edict implements ContainerInterface
     protected function addStaticEntry(string $id, $value): void
     {
         $this->entries[$id] = [
-            'type' => self::TYPE_STATIC,
+            'type' => self::TYPE_BASIC,
             'value' => $value
         ];
     }

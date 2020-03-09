@@ -9,10 +9,10 @@ Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), fram
 * [Informations](#informations)
 * [Installation](#installation)
 * [Documentation](#documentation)
-    * [Basic entries](#basic-entries)
-    * [Dynamic entries](#dynamic-entries)
-    * [Autowiring](#autowiring)
-    * [Aliases](#aliases)
+    1. [Basic entries](#basic-entries)
+    2. [Dynamic entries](#dynamic-entries)
+    3. [Autowiring](#autowiring)
+    4. [Aliases](#aliases)
 
 ## Informations
 

@@ -210,16 +210,18 @@ class EdictTest extends TestCase
      * You can change which container will be passed to the callbacks by
      * overriding the ContainerInterface class.
      */
-    public function testContainerInterfaceClassCanBeChanged(): void
+    public function testCanUseAnotherContainer(): void
     {
         $container = new Edict();
         $newContainer = new ExtendsEdict();
-
         $container->set(ContainerInterface::class, $newContainer);
+        $container->bind('useExtendsEdict', function (ContainerInterface $c) {
+            $c->get('foo');
+            return true;
+        });
 
-        $containerInterface = $container->get(ContainerInterface::class);
-
-        $this->assertSame($newContainer, $containerInterface);
+        $this->assertTrue($container->get('useExtendsEdict'));
+        $this->assertTrue($newContainer->called);
     }
 
     /**
