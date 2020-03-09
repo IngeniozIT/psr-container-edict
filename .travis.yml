@@ -5,6 +5,6 @@ before_script:
     - travis_retry composer self-update
     - travis_retry composer install --no-interaction --prefer-source
 script:
-    - vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan
+    - vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser
 after_success:
 - bash <(curl -s https://codecov.io/bash)
