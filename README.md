@@ -21,7 +21,7 @@ Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), fram
 
 | Info | Value |
 |-|-|
-| Current version | [![Packagist Version](https://img.shields.io/packagist/v/ingenioz-it/edict.svg)](https://packagist.org/packages/ingenioz-it/edict) |
+| Current version | [![Packagist Version](https://img.shields.io/packagist/v/ingenioz-it/edict)](https://packagist.org/packages/ingenioz-it/edict) |
 | Requires | ![PHP from Packagist](https://img.shields.io/packagist/php-v/ingenioz-it/edict.svg) |
 | Tests | [![Build Status](https://travis-ci.com/IngeniozIT/psr-container-edict.svg?branch=master)](https://travis-ci.com/IngeniozIT/psr-container-edict) |
 | Code coverage | [![Code Coverage](https://codecov.io/gh/IngeniozIT/psr-container-edict/branch/master/graph/badge.svg)](https://codecov.io/gh/IngeniozIT/psr-container-edict) |
