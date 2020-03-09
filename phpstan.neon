@@ -12,4 +12,4 @@ parameters:
       path: %currentWorkingDirectory%/tests/EdictTest.php
     -
       message: '#argument of class ReflectionClass constructor expects class#'
-      path: %currentWorkingDirectory%/src/Edict.php
+      path: %currentWorkingDirectory%/src/Entry/ClassEntry.php
