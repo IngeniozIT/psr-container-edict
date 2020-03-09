@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use IngeniozIT\Container\Edict;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use IngeniozIT\Container\Tests\Mocks\ExtendsEdict;
+use IngeniozIT\Container\Tests\Mocks\BasicClass;
+use IngeniozIT\Container\Tests\Mocks\SimplyWiredClass;
 
 /**
  * @coversDefaultClass \IngeniozIT\Container\Edict
@@ -131,7 +134,14 @@ class EdictTest extends TestCase
     {
         $container = new Edict();
 
-        $this->assertEntryInstantiatesClass($container, \IngeniozIT\Container\Tests\Mocks\BasicClass::class);
+        $this->assertEntryInstantiatesClass($container, BasicClass::class);
+    }
+
+    public function testCanAutowireSimplyWiredClass(): void
+    {
+        $container = new Edict();
+
+        $this->assertEntryInstantiatesClass($container, SimplyWiredClass::class);
     }
 
     /**
@@ -154,5 +164,33 @@ class EdictTest extends TestCase
     {
         $this->assertTrue($container->has($entryId));
         $this->assertInstanceOf($className, $container->get($entryId));
+    }
+
+    /**
+     * By default, Edict binds itself to the PSR ContainerInterface class.
+     */
+    public function testIsInitializedWithContainerInterfaceClass(): void
+    {
+        $container = new Edict();
+
+        $containerInterface = $container->get(ContainerInterface::class);
+
+        $this->assertSame($container, $containerInterface);
+    }
+
+    /**
+     * You can change which container will be passed to the callbacks by
+     * overriding the ContainerInterface class.
+     */
+    public function testContainerInterfaceClassCanBeChanged(): void
+    {
+        $container = new Edict();
+        $newContainer = new ExtendsEdict();
+
+        $container->set(ContainerInterface::class, $newContainer);
+
+        $containerInterface = $container->get(ContainerInterface::class);
+
+        $this->assertSame($newContainer, $containerInterface);
     }
 }

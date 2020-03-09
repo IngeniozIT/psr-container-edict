@@ -89,3 +89,36 @@ class MyClass { /* ... */ }
 
 $edict->get(MyClass::class); // MyClass instance
 ```
+
+If the class constructor needs parameters, Edict will automatically resolve the dependencies.
+
+```php
+class MyOtherClass
+{
+    public function __construct(MyClass $myclass) { /* ... */ }
+}
+
+$edict->get(MyOtherClass::class); // MyOtherClass instance
+```
+
+## Custom parameters
+
+If the class constructor uses parameters that cannot be automatically resolved, you can bind a callback that will use your Edict's entries.
+
+```php
+// This class needs a string to be instantiated.
+class NonResolvableClass
+{
+    public function __construct(string $unknownValue) { /* ... */ }
+}
+
+// Set the "unknownValueId" entry to something. We will use this value to instantiate NonResolvableClass.
+$edict->set('unknownValueId', 'foo');
+
+// Make NonResolvableClass use the entry "unknownValueId" as constructor parameter.
+$edict->bind(NonResolvableClass::class, function (ContainerInterface $c) {
+    return new NonResolvableClass($c->get('unknownValueId'));
+});
+
+$edict->get(NonResolvableClass::class); // NonResolvableClass instance that uses unknownValueId.
+```

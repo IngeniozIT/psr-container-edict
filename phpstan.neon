@@ -10,3 +10,6 @@ parameters:
     -
       message: '#PHPUnit\\Framework\\Assert::assertInstanceOf#'
       path: %currentWorkingDirectory%/tests/EdictTest.php
+    -
+      message: '#argument of class ReflectionClass constructor expects class#'
+      path: %currentWorkingDirectory%/src/Edict.php

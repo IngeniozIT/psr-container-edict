@@ -7,14 +7,22 @@ namespace IngeniozIT\Container;
 use Psr\Container\ContainerInterface;
 use IngeniozIT\Container\NotFoundException;
 use IngeniozIT\Container\ContainerException;
+use ReflectionClass;
 
 class Edict implements ContainerInterface
 {
     const TYPE_STATIC = 1;
-    const TYPE_DYNAMIC = 2;
+    const TYPE_CALLABLE = 2;
+    const TYPE_CLASS = 4;
+    const TYPE_CONSTRUCTOR = 8;
 
     /** @var array<mixed> */
     protected array $entries = [];
+
+    public function __construct()
+    {
+        $this->set(ContainerInterface::class, $this);
+    }
 
     /**
      * Finds an entry of the container by its identifier and returns it.
@@ -32,9 +40,74 @@ class Edict implements ContainerInterface
             throw new NotFoundException("Entry $id not found.");
         }
 
-        return $this->entries[$id]['type'] === self::TYPE_STATIC ?
-            $this->entries[$id]['value'] :
-            $this->entries[$id]['value']($this);
+        return $this->resolveEntry($id);
+    }
+
+    /**
+     * Resolves an entry.
+     *
+     * @return mixed
+     */
+    protected function resolveEntry(string $id)
+    {
+        switch ($this->entries[$id]['type']) {
+            case self::TYPE_CALLABLE:
+                return $this->resolveCallableEntry($id);
+            case self::TYPE_CLASS:
+                return $this->resolveClassEntry($id);
+            case self::TYPE_CONSTRUCTOR:
+                return $this->resolveConstructorEntry($id);
+        }
+        return $this->resolveStaticEntry($id);
+    }
+
+    /**
+     * Resolves a static entry.
+     *
+     * @return mixed
+     */
+    protected function resolveStaticEntry(string $id)
+    {
+        return $this->entries[$id]['value'];
+    }
+
+    /**
+     * Resolves an entry based on a callback.
+     *
+     * @return mixed
+     */
+    protected function resolveCallableEntry(string $id)
+    {
+        return $this->entries[$id]['callback']($this);
+    }
+
+    /**
+     * Resolves an entry based on a class name.
+     *
+     * @return mixed
+     * @suppress PhanTypeExpectedObjectOrClassName 'className' will always
+     * contain a class name.
+     */
+    protected function resolveClassEntry(string $id)
+    {
+        return new $this->entries[$id]['className']();
+    }
+
+    /**
+     * Resolves an entry based on a constructor.
+     *
+     * @return mixed
+     * @suppress PhanTypeExpectedObjectOrClassName 'className' will always
+     * contain a class name.
+     */
+    protected function resolveConstructorEntry(string $id)
+    {
+        return new $this->entries[$id]['className'](
+            ...array_map(
+                fn($p) => $this->get($p['type']),
+                $this->entries[$id]['params']
+            )
+        );
     }
 
     /**
@@ -50,11 +123,7 @@ class Edict implements ContainerInterface
      */
     public function has($id)
     {
-        if (!$this->hasEntry($id)) {
-            $this->autowire($id);
-        }
-
-        return $this->hasEntry($id);
+        return $this->hasEntry($id) || $this->autowire($id);
     }
 
     public function hasEntry(string $id): bool
@@ -62,24 +131,67 @@ class Edict implements ContainerInterface
         return isset($this->entries[$id]) || array_key_exists($id, $this->entries);
     }
 
-    protected function autowire(string $className): void
+    protected function autowire(string $className): bool
     {
         if (!class_exists($className)) {
-            return;
+            return false;
         }
 
-        $this->setEntry($className, fn(ContainerInterface $c) => new $className(), self::TYPE_DYNAMIC);
+        $constructorParams = self::getConstructorParams($className);
+
+        if (empty($constructorParams)) {
+            $this->addClassEntry($className);
+        } else {
+            $this->addConstructorEntry($className, $constructorParams);
+        }
+
+        return true;
     }
 
     /**
-     * Sets an entry to a specific value.
+     * Get a class constructor parameters
+     * @param  string $className
      *
-     * @param string $id Identifier of the entry.
-     * @param mixed $value Value the entry should hold.
+     * @return array<array> $parameters
      */
-    public function set(string $id, $value): void
+    protected static function getConstructorParams(string $className): array
     {
-        $this->setEntry($id, $value, self::TYPE_STATIC);
+        $constructorParams = [];
+
+        $reflectionClass = new ReflectionClass($className);
+        $constructor = $reflectionClass->getConstructor();
+        if ($constructor !== null) {
+            foreach ($constructor->getParameters() as $parameter) {
+                $constructorParams[] = [
+                    'name' => $parameter->getName(),
+                    'type' => (string)$parameter->getType(),
+                ];
+            }
+        }
+
+        return $constructorParams;
+    }
+
+    protected function addClassEntry(string $className): void
+    {
+        $this->entries[$className] = [
+            'type' => self::TYPE_CLASS,
+            'className' => $className,
+        ];
+    }
+
+    /**
+     * Adds an entry based on a class constructor.
+     * @param string $className
+     * @param array<array> $parameters
+     */
+    protected function addConstructorEntry(string $className, array $parameters): void
+    {
+        $this->entries[$className] = [
+            'type' => self::TYPE_CONSTRUCTOR,
+            'className' => $className,
+            'params' => $parameters,
+        ];
     }
 
     /**
@@ -95,15 +207,26 @@ class Edict implements ContainerInterface
     }
 
     /**
-     * Binds a callback to an entry.
+     * Sets an entry to a specific value.
      *
      * @param string $id Identifier of the entry.
-     * @param callable $callback Callback to execute everytime this entry is
-     * asked.
+     * @param mixed $value Value the entry should hold.
      */
-    public function bind(string $id, callable $callback): void
+    public function set(string $id, $value): void
     {
-        $this->setEntry($id, $callback, self::TYPE_DYNAMIC);
+        $this->addStaticEntry($id, $value);
+    }
+
+    /**
+     * @param string $id Identifier of the entry.
+     * @param mixed $value Value of the entry.
+     */
+    protected function addStaticEntry(string $id, $value): void
+    {
+        $this->entries[$id] = [
+            'type' => self::TYPE_STATIC,
+            'value' => $value
+        ];
     }
 
     /**
@@ -119,16 +242,22 @@ class Edict implements ContainerInterface
     }
 
     /**
+     * Binds a callback to an entry.
+     *
      * @param string $id Identifier of the entry.
-     * @param mixed $value Value of the entry.
-     * @param int $type Type of the entry. Can either be Edict::TYPE_STATIC or
-     * Edict::TYPE_DYNAMIC.
+     * @param callable $callback Callback to execute everytime this entry is
+     * asked.
      */
-    protected function setEntry(string $id, $value, int $type): void
+    public function bind(string $id, callable $callback): void
+    {
+        $this->addCallableEntry($id, $callback);
+    }
+
+    protected function addCallableEntry(string $id, callable $callback): void
     {
         $this->entries[$id] = [
-            'type' => $type,
-            'value' => $value
+            'type' => self::TYPE_CALLABLE,
+            'callback' => $callback,
         ];
     }
 }
