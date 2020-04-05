@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace IngeniozIT\Container\Tests\Mocks;
 
-class NoTypeParameterClass
+class NotAutowirableClass
 {
     /** @var mixed */
     protected $id;

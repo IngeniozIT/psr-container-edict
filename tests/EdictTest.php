@@ -13,13 +13,13 @@ use Psr\Container\{
 use IngeniozIT\Container\Tests\Mocks\{
     ExtendsEdict,
     BasicClass,
-    SimplyWiredClass,
+    ClassWithDependency,
     FooInterface,
     FooClass,
     BarInterface,
     BarClass,
-    MultiplyWiredClass,
-    NoTypeParameterClass,
+    ClassWithMultipleDependencies,
+    NotAutowirableClass,
 };
 
 /**
@@ -50,7 +50,7 @@ class EdictTest extends TestCase
      * @param mixed $entryValue
      * @dataProvider providerBasicEntries
      */
-    public function testSupportsBasicEntries($entryValue): void
+    public function testCanSetEntry($entryValue): void
     {
         $container = new Edict();
 
@@ -82,7 +82,7 @@ class EdictTest extends TestCase
         return true;
     }
 
-    public function testSetMultiple(): void
+    public function testCanSetMultipleEntries(): void
     {
         $container = new Edict();
 
@@ -175,7 +175,7 @@ class EdictTest extends TestCase
      * ALIASES
      ******************************************/
 
-    public function testCanUseAlias(): void
+    public function testCanSetAlias(): void
     {
         $container = new Edict();
 
@@ -184,7 +184,7 @@ class EdictTest extends TestCase
         $this->assertEntryIsInstanceOf($container, FooInterface::class, FooClass::class);
     }
 
-    public function testCanUseAliases(): void
+    public function testCanSetMultipleAliases(): void
     {
         $container = new Edict();
 
@@ -200,7 +200,7 @@ class EdictTest extends TestCase
     /**
      * By default, Edict binds itself to the PSR ContainerInterface class.
      */
-    public function testIsInitializedWithContainerInterfaceClass(): void
+    public function testBindsItselfToContainerInterfaceEntry(): void
     {
         $container = new Edict();
 
@@ -213,7 +213,7 @@ class EdictTest extends TestCase
      * You can change which container will be passed to the callbacks by
      * overriding the ContainerInterface class.
      */
-    public function testCanUseAnotherContainer(): void
+    public function testCanUseAnotherContainerInterfaceInCallbacks(): void
     {
         $container = new Edict();
         $anotherContainer = new ExtendsEdict();
@@ -245,27 +245,27 @@ class EdictTest extends TestCase
         $this->assertEntryInstantiatesClass($container, BasicClass::class);
     }
 
-    public function testCanAutowireSimplyWiredClass(): void
+    public function testCanAutowireClassWithDependency(): void
     {
         $container = new Edict();
 
-        $this->assertEntryInstantiatesClass($container, SimplyWiredClass::class);
+        $this->assertEntryInstantiatesClass($container, ClassWithDependency::class);
     }
 
-    public function testCanAutowireMultiplyWiredClass(): void
+    public function testCanAutowireClassWithMultipleDependencies(): void
     {
         $container = new Edict();
 
-        $this->assertEntryInstantiatesClass($container, MultiplyWiredClass::class);
+        $this->assertEntryInstantiatesClass($container, ClassWithMultipleDependencies::class);
     }
 
-    public function testInvalidAutowireThrowsException(): void
+    public function testThrowsExceptionOnNonAutowirableClass(): void
     {
         $container = new Edict();
 
         $this->expectException(NotFoundExceptionInterface::class);
 
-        $container->get(NoTypeParameterClass::class);
+        $container->get(NotAutowirableClass::class);
     }
 
     /******************************************
