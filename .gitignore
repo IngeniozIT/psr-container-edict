@@ -46,6 +46,9 @@ nb-configuration.xml
 /*.sublime-project
 *.sublime-workspace
 
+# Visual Studio Code
+.vscode
+
 # NPM debug log
 npm-debug.log
 
