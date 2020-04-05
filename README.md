@@ -16,6 +16,7 @@ Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), fram
     5. [Autowiring](#autowiring)
 * [Advanced usage](#advanced-usage)
     1. [Overriding the container](#overriding-the-container)
+    2. [Full documentation](#full-documentation)
 
 ## Informations
 
@@ -239,3 +240,13 @@ $edict->get(MyOtherClass::class); // MyOtherClass instance
 
 By default, an Edict instance will inject itself into the `bind`ed callbacks.  
 Any `\Psr\Container\ContainerInterface` can replace the Edict instance, see `EdictTest::testCanUseAnotherContainer` for an example.
+
+### Full documentation
+
+You can list all the available features by running
+
+```sh
+composer textdox
+```
+
+All the corresponding code samples are located in the [unit tests folder](tests/).
