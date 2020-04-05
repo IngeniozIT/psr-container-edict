@@ -36,7 +36,7 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser",
+        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser --no-progress-bar",
         "testdox": "vendor/bin/phpunit --testdox"
     }
 }
