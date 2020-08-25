@@ -246,7 +246,7 @@ Any `\Psr\Container\ContainerInterface` can replace the Edict instance, see `Edi
 You can list all the available features by running
 
 ```sh
-composer textdox
+composer testdox
 ```
 
 All the corresponding code samples are located in the [unit tests folder](tests/).
