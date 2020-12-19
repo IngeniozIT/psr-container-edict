@@ -11,14 +11,12 @@ use IngeniozIT\Container\NotFoundException;
 
 class ClassEntry implements EdictEntryInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
-    /** @var string */
-    protected $className;
+    protected string $className;
 
     /** @var string[] */
-    protected $params = [];
+    protected array $params = [];
 
     public function __construct(ContainerInterface $container, string $className)
     {
@@ -28,10 +26,7 @@ class ClassEntry implements EdictEntryInterface
     }
 
     /**
-     * Get a class constructor parameters
-     * @param  string $className
-     *
-     * @return string[] $parameters
+     * @return string[]
      */
     protected static function getConstructorParams(string $className): array
     {
@@ -47,9 +42,6 @@ class ClassEntry implements EdictEntryInterface
 
     /**
      * Get a ReflectionParameter's data as used by Edict.
-     * @param  ReflectionParameter $param
-     * @suppress PhanUndeclaredMethod ReflectionType::getName is not documented
-     * yet.
      */
     protected static function getParameterType(ReflectionParameter $param): string
     {
@@ -59,11 +51,10 @@ class ClassEntry implements EdictEntryInterface
             throw new NotFoundException("Parameter {$param->getName()} has not type. Autowiring is impossible.");
         }
 
-        return $type->getName();
+        return $type->__toString();
     }
 
     /**
-     * Resolves the entry.
      * @return mixed
      */
     public function resolve()

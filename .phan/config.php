@@ -11,7 +11,7 @@ return [
     // If this is set to `null`,
     // then Phan assumes the PHP version which is closest to the minor version
     // of the php executable used to execute Phan.
-    "target_php_version" => '7.4',
+    "target_php_version" => '8.0',
 
     // A list of directories that should be parsed for class and
     // method information. After excluding the directories
@@ -82,5 +82,6 @@ return [
     // here to inhibit them from being reported
     'suppress_issue_types' => [
         'PhanPluginPossiblyStaticClosure',
+        'PhanRedefinedInheritedInterface',
     ],
 ];

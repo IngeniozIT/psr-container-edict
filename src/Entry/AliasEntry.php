@@ -8,29 +8,21 @@ use Psr\Container\ContainerInterface;
 
 class AliasEntry implements EdictEntryInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
-    /** @var string */
-    protected $destId;
+    protected string $aliasDestinationId;
 
-    /**
-     * Constructor.
-     * @param ContainerInterface $container
-     * @param string $destId Destination of the alias.
-     */
-    public function __construct(ContainerInterface $container, string $destId)
+    public function __construct(ContainerInterface $container, string $aliasDestinationId)
     {
         $this->container = $container;
-        $this->destId = $destId;
+        $this->aliasDestinationId = $aliasDestinationId;
     }
 
     /**
-     * Resolves the entry.
      * @return mixed
      */
     public function resolve()
     {
-        return $this->container->get($this->destId);
+        return $this->container->get($this->aliasDestinationId);
     }
 }

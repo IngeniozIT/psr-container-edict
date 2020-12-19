@@ -8,16 +8,11 @@ use Psr\Container\ContainerInterface;
 
 class CallableEntry implements EdictEntryInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
     /** @var callable */
     protected $callback;
 
-    /**
-     * Constructor.
-     * @param callable $callback Callback to be stored.
-     */
     public function __construct(ContainerInterface $container, callable $callback)
     {
         $this->container = $container;
@@ -25,13 +20,10 @@ class CallableEntry implements EdictEntryInterface
     }
 
     /**
-     * Resolves the entry.
      * @return mixed
      */
     public function resolve()
     {
-        return ($this->callback)(
-            $this->container->get(ContainerInterface::class)
-        );
+        return ($this->callback)($this->container->get(ContainerInterface::class));
     }
 }

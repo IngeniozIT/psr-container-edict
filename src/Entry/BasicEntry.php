@@ -10,7 +10,6 @@ class BasicEntry implements EdictEntryInterface
     protected $value;
 
     /**
-     * Constructor.
      * @param mixed $value Value to be stored.
      */
     public function __construct($value)
@@ -19,7 +18,6 @@ class BasicEntry implements EdictEntryInterface
     }
 
     /**
-     * Resolves the entry.
      * @return mixed
      */
     public function resolve()

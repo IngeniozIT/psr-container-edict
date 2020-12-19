@@ -50,7 +50,7 @@ class EdictTest extends TestCase
      * @param mixed $entryValue
      * @dataProvider providerBasicEntries
      */
-    public function testCanSetEntry($entryValue): void
+    public function testCanSetAnEntry($entryValue): void
     {
         $container = new Edict();
 
@@ -82,7 +82,7 @@ class EdictTest extends TestCase
         return true;
     }
 
-    public function testCanSetMultipleEntries(): void
+    public function testCanSetMultipleEntriesAtOnce(): void
     {
         $container = new Edict();
 
@@ -99,7 +99,7 @@ class EdictTest extends TestCase
      * DYNAMIC ENTRIES
      ******************************************/
 
-    public function testCanBindCallable(): void
+    public function testCanBindACallable(): void
     {
         $container = new Edict();
 
@@ -113,7 +113,7 @@ class EdictTest extends TestCase
         $this->assertValidEntry($container, 'foo', 2);
     }
 
-    public function testCanBindMultipleCallables(): void
+    public function testCanBindMultipleCallablesAtOnce(): void
     {
         $container = new Edict();
 
@@ -140,19 +140,25 @@ class EdictTest extends TestCase
      * STATIC ENTRIES
      ******************************************/
 
-    public function testCanBindStaticEntries(): void
+    public function testCanBindAStaticEntry(): void
     {
         $container = new Edict();
 
         $container->bindStatic('foo', fn (ContainerInterface $c) => new FooClass());
 
-        $this->assertSame(
-            $container->get('foo'),
-            $container->get('foo')
-        );
+        $this->assertEntryIsInstanceOf($container, 'foo', FooClass::class);
     }
 
-    public function testCanBindMultipleStaticEntries(): void
+    public function testReturnsTheSameInstanceOfStaticallyBindedEntries(): void
+    {
+        $container = new Edict();
+
+        $container->bindStatic('foo', fn (ContainerInterface $c) => new FooClass());
+
+        $this->assertSame($container->get('foo'), $container->get('foo'));
+    }
+
+    public function testCanBindMultipleStaticEntriesAtOnce(): void
     {
         $container = new Edict();
 
@@ -161,21 +167,15 @@ class EdictTest extends TestCase
             'bar' => fn (ContainerInterface $c) => new BarClass(),
         ]);
 
-        $this->assertSame(
-            $container->get('foo'),
-            $container->get('foo')
-        );
-        $this->assertSame(
-            $container->get('bar'),
-            $container->get('bar')
-        );
+        $this->assertSame($container->get('foo'), $container->get('foo'));
+        $this->assertSame($container->get('bar'), $container->get('bar'));
     }
 
     /******************************************
      * ALIASES
      ******************************************/
 
-    public function testCanSetAlias(): void
+    public function testCanSetAnAlias(): void
     {
         $container = new Edict();
 
@@ -184,7 +184,7 @@ class EdictTest extends TestCase
         $this->assertEntryIsInstanceOf($container, FooInterface::class, FooClass::class);
     }
 
-    public function testCanSetMultipleAliases(): void
+    public function testCanSetMultipleAliasesAtOnce(): void
     {
         $container = new Edict();
 
@@ -200,7 +200,7 @@ class EdictTest extends TestCase
     /**
      * By default, Edict binds itself to the PSR ContainerInterface class.
      */
-    public function testBindsItselfToContainerInterfaceEntry(): void
+    public function testBindsItselfToTheContainerInterfaceEntry(): void
     {
         $container = new Edict();
 
@@ -213,7 +213,7 @@ class EdictTest extends TestCase
      * You can change which container will be passed to the callbacks by
      * overriding the ContainerInterface class.
      */
-    public function testCanUseAnotherContainerInterfaceInCallbacks(): void
+    public function testCanReplaceTheContainerInterfaceInjectedInCallbacks(): void
     {
         $container = new Edict();
         $anotherContainer = new ExtendsEdict();
@@ -238,28 +238,28 @@ class EdictTest extends TestCase
      * AUTOWIRING
      ******************************************/
 
-    public function testCanAutowireBasicClass(): void
+    public function testCanAutowireABasicClass(): void
     {
         $container = new Edict();
 
         $this->assertEntryInstantiatesClass($container, BasicClass::class);
     }
 
-    public function testCanAutowireClassWithDependency(): void
+    public function testCanAutowireAClassWithADependency(): void
     {
         $container = new Edict();
 
         $this->assertEntryInstantiatesClass($container, ClassWithDependency::class);
     }
 
-    public function testCanAutowireClassWithMultipleDependencies(): void
+    public function testCanAutowireAClassWithMultipleDependencies(): void
     {
         $container = new Edict();
 
         $this->assertEntryInstantiatesClass($container, ClassWithMultipleDependencies::class);
     }
 
-    public function testThrowsExceptionOnNonAutowirableClass(): void
+    public function testThrowsExceptionWhenTryingToAutowireANotAutowirableClass(): void
     {
         $container = new Edict();
 
@@ -274,8 +274,6 @@ class EdictTest extends TestCase
 
     /**
      * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $entryId
      * @param mixed $entryValue
      */
     protected function assertValidEntry(ContainerInterface $container, string $entryId, $entryValue): void
@@ -286,8 +284,6 @@ class EdictTest extends TestCase
 
     /**
      * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $className
      */
     protected function assertEntryInstantiatesClass(ContainerInterface $container, string $className): void
     {
@@ -296,9 +292,6 @@ class EdictTest extends TestCase
 
     /**
      * Checks if an entry of a container is valid.
-     * @param ContainerInterface $container
-     * @param string $entryId
-     * @param string $className
      */
     protected function assertEntryIsInstanceOf(ContainerInterface $container, string $entryId, string $className): void
     {

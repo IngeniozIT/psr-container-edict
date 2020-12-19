@@ -8,19 +8,13 @@ use IngeniozIT\Container\Edict;
 
 class StaticEntry implements EdictEntryInterface
 {
-    /** @var Edict */
-    protected $container;
+    protected Edict $container;
 
-    /** @var string */
-    protected $entryId;
+    protected string $entryId;
 
     /** @var callable */
     protected $callback;
 
-    /**
-     * Constructor.
-     * @param callable $callback Callback to be stored.
-     */
     public function __construct(Edict $container, string $entryId, callable $callback)
     {
         $this->container = $container;
@@ -29,7 +23,6 @@ class StaticEntry implements EdictEntryInterface
     }
 
     /**
-     * Resolves the entry.
      * @return mixed
      */
     public function resolve()
