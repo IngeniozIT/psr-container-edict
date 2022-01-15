@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace IngeniozIT\Edict;
 
-namespace IngeniozIT\Container;
-
+use Exception;
 use Psr\Container\ContainerExceptionInterface;
 
-class ContainerException extends \OutOfBoundsException implements ContainerExceptionInterface
+class ContainerException extends Exception implements ContainerExceptionInterface
 {
 }

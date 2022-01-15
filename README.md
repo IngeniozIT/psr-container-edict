@@ -1,252 +1,204 @@
 # Edict
 
-Easy DI ConTainer is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), framework-agnostic dependency injection container.
+EDICT (**E**asy **DI** **C**on**T**ainer) is a slim, [PSR 11](https://www.php-fig.org/psr/psr-11/), framework-agnostic dependency injection container.
 
+Cool features:
 
+- [Autowiring](#autowiring) support *(can be toggled off)*
+- [PHP attributes](#php-attributes) support
+- 100% tested and documented
+- Uses an up-to-date PHP version
 
-## Table of Contents
-
-* [Informations](#informations)
-* [Installation](#installation)
-* [Documentation](#documentation)
-    1. [Basic entries (set)](#basic-entries-set)
-    2. [Dynamic entries (bind)](#dynamic-entries-bind)
-    3. [Static entries (bindStatic)](#static-entries-bindstatic)
-    4. [Aliases (alias)](#aliases-alias)
-    5. [Autowiring](#autowiring)
-* [Advanced usage](#advanced-usage)
-    1. [Overriding the container](#overriding-the-container)
-    2. [Full documentation](#full-documentation)
-
-## Informations
+## About
 
 | Info | Value |
-|-|-|
+|---|---|
 | Current version | [![Packagist Version](https://img.shields.io/packagist/v/ingenioz-it/edict)](https://packagist.org/packages/ingenioz-it/edict) |
 | Requires | ![PHP from Packagist](https://img.shields.io/packagist/php-v/ingenioz-it/edict.svg) |
+| License | ![Packagist](https://img.shields.io/packagist/l/ingenioz-it/edict) |
 | Tests | [![Build Status](https://travis-ci.com/IngeniozIT/psr-container-edict.svg?branch=master)](https://travis-ci.com/IngeniozIT/psr-container-edict) |
 | Code coverage | [![Code Coverage](https://codecov.io/gh/IngeniozIT/psr-container-edict/branch/master/graph/badge.svg)](https://codecov.io/gh/IngeniozIT/psr-container-edict) |
-| License | ![Packagist](https://img.shields.io/packagist/l/ingenioz-it/edict) |
+| Tested with | [phpunit](https://github.com/sebastianbergmann/phpunit), [phan](https://github.com/phan/phan), [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer), [phpstan](https://github.com/phpstan/phpstan), [infection](https://github.com/infection/infection) |
 
 ## Installation
-
-Via composer
 
 ```sh
 composer require ingenioz-it/edict
 ```
 
-Via git
+## How to use
 
-```sh
-git clone https://github.com/IngeniozIT/psr-container-edict.git
-```
-
-## Documentation
-
-### Basic entries (set)
-
-You can set and get any type of value using `set(string $id, $value)` and `get($id)`.
+To use Edict, put the following line into your code:
 
 ```php
-<?php
-use IngeniozIT\Container\Edict;
-
-$edict = new Edict();
-
-$edict->set('entryId', 'entryValue');
-
-$edict->get('entryId'); // 'entryValue'
+$edict = new \IngeniozIT\Edict\Container();
 ```
 
-You can override any entry.
+Edict is now ready to go. Yes, it's that simple !
+
+### Types of entries
+
+Depending on your needs, you can create several types of entries:
+
+#### Simple values
+
+Scalar, arrays, objects ... pretty much whatever you want.
 
 ```php
-$edict->set('entryId', 'entryValue');
-$edict->set('entryId', 'anotherEntryValue');
+use function IngeniozIT\Edict\value;
 
-$edict->get('entryId'); // 'anotherEntryValue'
+$edict->set('entryName', value('entryValue'));
+
+$edict->get('entryName'); // 'entryValue'
 ```
 
-You can set multiple entries at once using `setMultiple(iterable $entries)`.
+#### Aliases
+
+Maps an entry to another entry.
 
 ```php
-$edict->setMultiple([
-    'entryId' => 'entryValue',
-    'anotherEntryId' => 'anotherEntryValue',
+use function IngeniozIT\Edict\alias;
+
+$edict->set('entryName', value(42));
+$edict->set('aliasEntryName', alias('entryName'));
+
+$edict->get('aliasEntryName'); // 42
+```
+
+#### Dynamic values
+
+These entries will be resolved everytime you call them.
+
+```php
+use function IngeniozIT\Edict\dynamic;
+
+$edict->set('entryName', dynamic(fn() => date('H:i:s')));
+
+$edict->get('entryName'); // '08:36:51'
+sleep(1);
+$edict->get('entryName'); // '08:36:52' <-- one second has passed
+```
+
+#### Lazy loaded values
+
+These entries will be resolved only once. Use them when you want to use the same object across your application (like a database handle).
+
+```php
+use function IngeniozIT\Edict\lazyload;
+
+$edict->set('entryName', lazyload(fn() => new PDO(/* ... */)));
+
+$edict->get('entryName'); // Your PDO instance
+$edict->get('entryName'); // The same PDO instance
+```
+
+#### Plain entry
+
+These entries will return the result of the callback you give them. Use them for advanced injections.
+
+```php
+use function IngeniozIT\Edict\entry;
+
+$edict->set('entryName', entry(fn() => 42));
+
+$edict->get('entryName'); // 42
+```
+
+### Setting multiple entries at once
+
+You can set multiple entries at once:
+
+```php
+$edict->setMany([
+    'entry1' => value('foo'),
+    'entry2' => value('bar'),
+    'entry3' => alias('someEntry'),
 ]);
-
-$edict->get('entryId'); // 'entryValue'
-$edict->get('anotherEntryId'); // 'anotherEntryValue'
 ```
 
-### Dynamic entries (bind)
+### Using the container inside an entry
 
-You can set dynamic entries using `bind(string $id, callable $callback)`.  
-The callback will be called everytime you use `get($id)`.
-
-The callback should accept one parameter of type `\Psr\Container\ContainerInterface`.
+You can use the container inside the callback to fetch other entries.
 
 ```php
-$edict->bind('entryId', fn(ContainerInterface $c): string => 'foo ' . rand());
+use Psr\Container\ContainerInterface;
 
-$edict->get('entryId'); // 'foo571065461'
-$edict->get('entryId'); // 'foo984321175'
-```
+// Put this inside a local config file.
+$edict->setMany([
+    'db.dsn' => value('mysql:dbname=mydb;host=localhost'),
+    'db.username' => value('root'),
+    'db.password' => value('secret'),
+);
 
-You can use the container to get values from other entries.
+// To instantiate the db
+$edict->set('database', lazyload(
+    fn(ContainerInterface $container) => new PDO(
+        $container->get('db.dsn'),
+        $container->get('db.username'),
+        $container->get('db.password')
+    ))
+);
 
-```php
-use \Psr\Container\ContainerInterface;
-
-$edict->bind('entryId', function (ContainerInterface $c): string {
-    return $c->get('anotherEntry') . rand();
-});
-$edict->set('anotherEntry', 'foo');
-
-$edict->get('entryId'); // 'foo821492074'
-$edict->get('entryId'); // 'foo904232863'
-```
-
-You can bind multiple entries at once using `bindMultiple(iterable $entries)`.
-
-```php
-$edict->bindMultiple([
-    'entryId' => fn(ContainerInterface $c): string => 'foo ' . rand(),
-    'anotherEntryId' => fn(ContainerInterface $c): string => 'bar ' . rand(),
-]);
-
-$edict->get('entryId'); // 'foo984321175'
-$edict->get('anotherEntryId'); // 'bar821492074'
-```
-
-### Static entries (bindStatic)
-
-You can use the container to instantiate a single instance of a class that will be used everytime an entry will be called.
-
-Use this to benefit from the lazy loading system.
-
-```php
-$edict->bindStatic('database', function (ContainerInterface $c) {
-    return new PDO(/* ... */);
-});
-
-// Both will be the same PDO instance
-$db1 = $edict->get('database');
-$db2 = $edict->get('database');
-```
-
-You can bind multiple entries at once using `bindMultiple(iterable $entries)`.
-
-```php
-$edict->bindMultipleStatic([
-    'entryId' => fn(ContainerInterface $c) => new PDO(/* ... */);,
-    'anotherEntryId' => fn(ContainerInterface $c) => new mysqli(/* ... */);,
-]);
-
-// Both are the same
-$edict->get('entryId');
-$edict->get('entryId');
-
-// Both are the same
-$edict->get('anotherEntryId');
-$edict->get('anotherEntryId');
-```
-
-### Aliases (alias)
-
-Some classes constructors accept interfaces as parameters.  
-In this case, during autowiring, Edict is not able to tell which implementation of this interface you want to use.
-
-You can use `alias(string $sourceId, string $destId)` to bind an interface to one of its implementations.
-
-```php
-interface MyInterface { /* ... */ }
-class MyClass implements MyInterface { /* ... */ }
-
-$edict->bind('foo', function (ContainerInterface $container): MyClass {
-    return new MyClass();
-}
-$edict->alias(MyInterface::class, 'foo');
-
-$edict->get(MyInterface::class); // MyClass instance
-```
-
-You can also use Edict's autowiring by giving a class name instead of an entry id.
-
-```php
-interface MyInterface { /* ... */ }
-class MyClass implements MyInterface { /* ... */ }
-
-$edict->alias(MyInterface::class, MyClass::class);
-
-$edict->get(MyInterface::class); // MyClass instance
-```
-
-You can bind multiple interfaces at once using `aliases(iterable $entries)`.
-
-```php
-$edict->aliases([
-    MyInterface::class => MyClass::class,
-    MyOtherInterface::class => MyOtherClass::class,
-]);
-
-$edict->get(MyInterface::class); // MyClass instance
-$edict->get(MyOtherInterface::class); // MyOtherClass instance
-```
-
-Aliases can also be used to manage your code plugins (databases mapping etc).
-
-```php
-
-$edict->bindMultiple([
-    'database1' => function (ContainerInterface $c) { /* ... */ },
-    'database2' => function (ContainerInterface $c) { /* ... */ },
-    'database3' => function (ContainerInterface $c) { /* ... */ },
-]);
-
-$edict->aliases([
-    'usersDatabase' => 'database1',
-    'monitoringDatabase' => 'database2',
-    'transactionsDatabase' => 'database2',
-    'topSecretDatabase' => 'database3',
-]);
+$edict->get('database'); // Your PDO object
 ```
 
 ### Autowiring
 
-You can use Edict to instantiate classes without defining a new entry for every class.
+Edict can use autowiring to automatically resolve dependencies and instantiate your classes:
 
 ```php
-class MyClass { /* ... */ }
-
-$edict->get(MyClass::class); // MyClass instance
-```
-
-If the class constructor needs parameters, Edict will automatically resolve the dependencies.
-
-```php
-class MyOtherClass
+class MyClass
 {
-    public function __construct(MyClass $myclass) { /* ... */ }
 }
 
-$edict->get(MyOtherClass::class); // MyOtherClass instance
+$edict->get(MyClass::class); // Instance of MyClass, no configuration needed
 ```
 
-## Advanced usage
+Edict will inject any dependency for you, as long as it can be resolved:
 
-### Overriding the container
+```php
+class AnotherClass
+{
+    public function __construct(MyClass $class) { /*...*/ }
+}
 
-By default, an Edict instance will inject itself into the `bind`ed callbacks.  
-Any `\Psr\Container\ContainerInterface` can replace the Edict instance, see `EdictTest::testCanUseAnotherContainer` for an example.
+$edict->get(AnotherClass::class); // Instance of AnotherClass
+```
 
-### Full documentation
+You can disable/enable autowiring anytime you want. Any class that has already been autowired will still be accessible.
 
-You can list all the available features by running
+```php
+$edict->disableAutowiring();
+$edict->enableAutowiring();
+```
+
+### PHP Attributes
+
+Some parameters cannot be automatically resolved. You can either [create your own entry](#using-the-container-inside-an-entry) to pass the correct values to the constructor, or you can use a PHP attribute to tell Edict which entry to use:
+
+```php
+use IngeniozIT\Edict\Inject;
+
+class MyClass
+{
+    public function __construct(
+        #[Inject('entryToInject')] int $value
+    ) {
+        /*...*/
+    }
+}
+
+$edict->set('entryToInject', value(42));
+
+$edict->get(MyClass::class); // Instance of MyClass with $value = 42
+```
+
+## Full documentation
+
+You can list the available features by running
 
 ```sh
 composer testdox
 ```
 
-All the corresponding code samples are located in the [unit tests folder](tests/).
+The corresponding code samples are located in the [unit tests file](tests/ContainerTest.php).

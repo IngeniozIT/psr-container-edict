@@ -2,7 +2,7 @@
     "name": "ingenioz-it/edict",
     "type": "library",
     "description": "A slim, PSR 11, framework-agnostic DI container",
-    "keywords": ["PSR-11", "Container", "DIC", "IoC"],
+    "keywords": ["PSR-11", "DI", "Container", "IoC"],
     "homepage": "https://github.com/IngeniozIT/psr-container-edict",
     "license": "MIT",
     "authors": [
@@ -12,31 +12,36 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
-        "psr/container": "^1.0"
+        "php": ">=8.1",
+        "psr/container": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
-        "phan/phan": "^3.2",
-        "squizlabs/php_codesniffer": "^3.5",
-        "phpstan/phpstan": "^0.12.63"
+        "phan/phan": "^5.3",
+        "squizlabs/php_codesniffer": "^3.6",
+        "phpstan/phpstan": "^1.3",
+        "infection/infection": "^0"
     },
     "provide": {
-        "psr/container-implementation": "1.0"
+        "psr/container-implementation": "^2.0"
     },
     "autoload": {
         "psr-4": {
-            "IngeniozIT\\Container\\": "src/"
-        }
+            "IngeniozIT\\Edict\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "IngeniozIT\\Container\\Tests\\": "tests/"
+            "IngeniozIT\\Edict\\Tests\\": "tests/"
         }
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser --no-progress-bar",
-        "testdox": "vendor/bin/phpunit --testdox"
+        "testdox": "vendor/bin/phpunit --testdox",
+        "coverage": "vendor/bin/phpunit --coverage-html tmp/",
+        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan && vendor/bin/infection"
     }
 }

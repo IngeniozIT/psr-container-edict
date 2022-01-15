@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace IngeniozIT\Edict;
 
-namespace IngeniozIT\Container;
-
+use OutOfBoundsException;
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException extends \OutOfBoundsException implements NotFoundExceptionInterface
+class NotFoundException extends OutOfBoundsException implements NotFoundExceptionInterface
 {
 }
