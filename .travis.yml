@@ -3,6 +3,7 @@ os: linux
 dist: bionic
 before_install:
   - sudo apt-get update
+  - echo "extension = ast.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 php:
   - '8.1.0'
 before_script:
