@@ -42,6 +42,6 @@
         "test": "vendor/bin/phpunit",
         "testdox": "vendor/bin/phpunit --testdox",
         "coverage": "vendor/bin/phpunit --coverage-html tmp/",
-        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser && vendor/bin/infection"
+        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser --no-progress-bar && vendor/bin/infection"
     }
 }
