@@ -13,7 +13,7 @@ class ClassWithComplexDependencies
         public ClassWithSolvableDependencies $solvableDependencies,
         public ClassWithAttributeDependencies $attributeDependencies,
         #[Inject('injectedEntry')] public string $injectedParam,
-        #[Inject('anotherInjectedEntry')] public int $anotherInjectedParam,
+        #[Inject('anotherInjectedEntry')] public int $anotherInjectedParam
     ) {
     }
 }
