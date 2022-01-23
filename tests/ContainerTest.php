@@ -127,7 +127,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->set(
             ClassThatCannotBeAutowired::class,
-            entry(fn(ContainerInterface $container) => new ClassThatCannotBeAutowired(42))
+            entry(fn() => new ClassThatCannotBeAutowired(42))
         );
 
         $entry = $container->get(ClassThatCannotBeAutowired::class);
@@ -256,14 +256,21 @@ class ContainerTest extends TestCase
         self::assertInstanceOf(ClassWithoutDependencies::class, $container->get(ClassWithoutDependencies::class));
     }
 
-    public function testHasEntriesThatPointToItself(): void
+    public function testLinksItselfToContainerClass(): void
     {
         $container = new Container();
 
         $edict = $container->get(Container::class);
-        $alsoEdict = $container->get(ContainerInterface::class);
 
         self::assertSame($container, $edict);
-        self::assertSame($container, $alsoEdict);
+    }
+
+    public function testLinksItselfToPsr11ContainerInterface(): void
+    {
+        $container = new Container();
+
+        $edict = $container->get(ContainerInterface::class);
+
+        self::assertSame($container, $edict);
     }
 }
