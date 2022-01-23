@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace IngeniozIT\Edict;
 
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionException;
 
@@ -64,7 +63,7 @@ class Container implements ContainerInterface
         try {
             $this->set($className, objectValue($className));
             return true;
-        } catch (ContainerExceptionInterface | ReflectionException) {
+        } catch (ContainerException | ReflectionException) {
             return false;
         }
     }

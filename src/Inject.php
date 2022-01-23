@@ -13,9 +13,4 @@ class Inject
         public readonly string $entryId
     ) {
     }
-
-    public function __toString(): string
-    {
-        return $this->entryId;
-    }
 }

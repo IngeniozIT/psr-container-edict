@@ -20,7 +20,8 @@
         "phan/phan": "^5.3",
         "squizlabs/php_codesniffer": "^3.6",
         "phpstan/phpstan": "^1.3",
-        "infection/infection": "^0"
+        "infection/infection": "^0",
+        "vimeo/psalm": "^4.18"
     },
     "provide": {
         "psr/container-implementation": "^2.0"
@@ -41,7 +42,13 @@
     "scripts": {
         "test": "vendor/bin/phpunit",
         "testdox": "vendor/bin/phpunit --testdox",
-        "coverage": "vendor/bin/phpunit --coverage-html tmp/",
-        "fulltest" : "vendor/bin/phpunit && vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/phan --allow-polyfill-parser --no-progress-bar && XDEBUG_MODE=coverage vendor/bin/infection"
+        "coverage:html": "vendor/bin/phpunit --coverage-html tmp/",
+        "quality:tests": "XDEBUG_MODE=coverage vendor/bin/infection",
+        "quality:code": "vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/psalm --show-info=true && vendor/bin/phan --allow-polyfill-parser",
+        "fulltest": [
+            "vendor/bin/phpunit",
+            "@quality:tests",
+            "@quality:code"
+        ]
     }
 }
