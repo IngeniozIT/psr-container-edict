@@ -8,6 +8,7 @@ composer.lock
 vendor/
 phpunit.xml
 .phpunit.result.cache
+coverage.xml
 phpcs.xml
 phpstan.neon
 infection.json
