@@ -44,7 +44,7 @@
         "testdox": "vendor/bin/phpunit --testdox",
         "coverage:html": "vendor/bin/phpunit --coverage-html tmp/",
         "quality:tests": "XDEBUG_MODE=coverage vendor/bin/infection",
-        "quality:code": "vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/psalm --show-info=true && vendor/bin/phan --allow-polyfill-parser",
+        "quality:code": "vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/psalm --show-info=true && vendor/bin/phan --allow-polyfill-parser --no-progress-bar",
         "fulltest": [
             "vendor/bin/phpunit",
             "@quality:tests",
