@@ -4,6 +4,7 @@ This is a minimalistic code of conduct.
 
 ## Do
 
+- Read the [CONTRIBUTING.md](../CONTRIBUTING.md)
 - Help each other out
 - Give constructive feedback
 - Improve things
