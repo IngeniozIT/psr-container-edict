@@ -16,7 +16,7 @@ Cool features:
 | Current version | [![Packagist Version](https://img.shields.io/packagist/v/ingenioz-it/edict)](https://packagist.org/packages/ingenioz-it/edict) |
 | Requires | ![PHP from Packagist](https://img.shields.io/packagist/php-v/ingenioz-it/edict.svg) |
 | License | ![Packagist](https://img.shields.io/packagist/l/ingenioz-it/edict) |
-| Tests | [![Build Status](https://travis-ci.com/IngeniozIT/psr-container-edict.svg?branch=master)](https://travis-ci.com/IngeniozIT/psr-container-edict) |
+| Tests | [![Build Status](https://app.travis-ci.com/IngeniozIT/psr-container-edict.svg?branch=master)](https://app.travis-ci.com/IngeniozIT/psr-container-edict) |
 | Code coverage | [![Code Coverage](https://codecov.io/gh/IngeniozIT/psr-container-edict/branch/master/graph/badge.svg)](https://codecov.io/gh/IngeniozIT/psr-container-edict) |
 | Tested with | [phpunit](https://github.com/sebastianbergmann/phpunit), [phan](https://github.com/phan/phan), [psalm](https://github.com/vimeo/psalm), [phpcs](https://github.com/squizlabs/PHP_CodeSniffer), [phpstan](https://github.com/phpstan/phpstan), [infection](https://github.com/infection/infection) |
 
