@@ -89,7 +89,7 @@ function getAutowiredParameters(string $className): array
         function (ReflectionParameter $param) use ($className): string {
             $injectAttribute = $param->getAttributes(Inject::class)[0] ?? null;
             if ($injectAttribute !== null) {
-                return (string) $injectAttribute->newInstance()->entryId;
+                return $injectAttribute->newInstance()->entryId;
             }
             $parameterClass = (string)$param->getType();
             return class_exists($parameterClass) ?
