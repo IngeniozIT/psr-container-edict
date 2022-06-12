@@ -42,12 +42,24 @@
     "scripts": {
         "test": "vendor/bin/phpunit",
         "testdox": "@test --testdox",
-        "coverage:xml": "@test --coverage-clover tmp/coverage.xml",
-        "coverage:html": "@test --coverage-html tmp/",
-        "quality:tests": "vendor/bin/infection",
-        "quality:code": "vendor/bin/phpcs && vendor/bin/phpstan analyze && vendor/bin/psalm --show-info=true --no-cache && vendor/bin/phan --allow-polyfill-parser --no-progress-bar",
+        "test:coverage:xml": "@test --coverage-clover tmp/coverage.xml",
+        "test:coverage:html": "@test --coverage-html tmp/",
+        "quality:infection": "vendor/bin/infection",
+        "quality:phpcs": "vendor/bin/phpcs",
+        "quality:phpstan": "vendor/bin/phpstan analyze",
+        "quality:psalm": "vendor/bin/psalm --show-info=true --no-cache",
+        "quality:phan": "vendor/bin/phan --allow-polyfill-parser --no-progress-bar",
+        "quality:tests": [
+            "@quality:infection"
+        ],
+        "quality:code": [
+            "@quality:phpcs",
+            "@quality:phpstan",
+            "@quality:psalm",
+            "@quality:phan"
+        ],
         "fulltest": [
-            "@coverage:xml",
+            "@test:coverage:xml",
             "@quality:tests",
             "@quality:code"
         ]
