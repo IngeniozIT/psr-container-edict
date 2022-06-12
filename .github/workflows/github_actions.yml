@@ -28,7 +28,7 @@ jobs:
       run: composer install --prefer-dist --no-progress
 
     - name: Run test suite
-      run: composer fulltest
+      run: XDEBUG_MODE=coverage composer fulltest
 
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3
