@@ -1,4 +1,4 @@
-name: Code quality
+name: tests
 
 on:
   push:
@@ -29,21 +29,6 @@ jobs:
 
     - name: Tests with code coverage
       run: XDEBUG_MODE=coverage composer test:coverage:xml
-
-    - name: Tests quality - infection
-      run: XDEBUG_MODE=coverage composer quality:infection
-
-    - name: Code quality - phpcs
-      run: composer quality:phpcs
-
-    - name: Code quality - phpstan
-      run: composer quality:phpstan
-
-    - name: Code quality - psalm
-      run: composer quality:psalm
-
-    - name: Code quality - phan
-      run: composer quality:phan
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
