@@ -235,6 +235,27 @@ class ContainerTest extends TestCase
         self::assertEquals(42, $container->get('entry5'));
     }
 
+    public function testCanSetEntriesFromAFile(): void
+    {
+        $container = new Container();
+
+        $container->setFromFile(__DIR__ . '/entries.php');
+
+        self::assertEquals(42, $container->get('entry1'));
+        self::assertInstanceOf(ClassWithoutDependencies::class, $container->get('entry2'));
+        self::assertInstanceOf(ClassWithoutDependencies::class, $container->get('entry3'));
+        self::assertInstanceOf(ClassWithoutDependencies::class, $container->get('entry4'));
+        self::assertEquals(42, $container->get('entry5'));
+    }
+
+    public function testThrowsExceptionWhenFileDoesNotExist(): void
+    {
+        $container = new Container();
+
+        $this->expectException(ContainerException::class);
+        $container->setFromFile(__DIR__ . '/does-not-exist.php');
+    }
+
     public function testCanDisableAutowiring(): void
     {
         $container = new Container();
