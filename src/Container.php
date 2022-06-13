@@ -9,7 +9,7 @@ use ReflectionException;
 
 class Container implements ContainerInterface
 {
-    /** @var Entry[] */
+    /** @var callable[] */
     protected array $entries = [];
 
     protected bool $autowiring = true;
@@ -32,7 +32,7 @@ class Container implements ContainerInterface
                 new NotFoundException("Entry $id does not exist");
         }
 
-        return $this->entries[$id]->resolve($this);
+        return $this->entries[$id]($this);
     }
 
     public function has(string $id): bool
@@ -40,13 +40,13 @@ class Container implements ContainerInterface
         return isset($this->entries[$id]) || ($this->autowiring && class_exists($id) && $this->autowire($id));
     }
 
-    public function set(string $id, Entry $value): void
+    public function set(string $id, callable $value): void
     {
         $this->entries[$id] = $value;
     }
 
     /**
-     * @param iterable<string, Entry> $entries
+     * @param iterable<string, callable> $entries
      */
     public function setMany(iterable $entries): void
     {

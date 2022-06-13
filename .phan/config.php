@@ -29,7 +29,5 @@ return [
         'php_native_syntax_check_max_processes' => 4,
     ],
     'suppress_issue_types' => [
-        'PhanRedefinedInheritedInterface',
-        'PhanCompatibleReadonlyProperty',
     ],
 ];
