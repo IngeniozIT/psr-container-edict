@@ -77,4 +77,16 @@ class Container implements ContainerInterface
     {
         $this->autowiring = true;
     }
+
+    /**
+     * @throws ContainerException when file does not exist
+     */
+    public function setFromFile(string $filename): void
+    {
+        if (!file_exists($filename)) {
+            throw new ContainerException("File $filename does not exist");
+        }
+
+        $this->setMany(require $filename);
+    }
 }
