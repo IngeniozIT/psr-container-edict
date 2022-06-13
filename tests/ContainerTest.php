@@ -24,7 +24,6 @@ use function IngeniozIT\Edict\{
     alias,
     dynamic,
     lazyload,
-    entry,
 };
 
 class ContainerTest extends TestCase
@@ -127,7 +126,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->set(
             ClassThatCannotBeAutowired::class,
-            entry(fn() => new ClassThatCannotBeAutowired(42))
+            fn() => new ClassThatCannotBeAutowired(42)
         );
 
         $entry = $container->get(ClassThatCannotBeAutowired::class);
@@ -226,7 +225,7 @@ class ContainerTest extends TestCase
             'entry2' => alias(ClassWithoutDependencies::class),
             'entry3' => dynamic(fn() => new ClassWithoutDependencies()),
             'entry4' => lazyload(fn() => new ClassWithoutDependencies()),
-            'entry5' => entry(fn() => 42),
+            'entry5' => fn() => 42,
         ]);
 
         self::assertEquals(42, $container->get('entry1'));

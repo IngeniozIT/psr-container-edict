@@ -5,51 +5,39 @@ declare(strict_types=1);
 namespace IngeniozIT\Edict;
 
 use Psr\Container\ContainerInterface;
-use Closure;
 use ReflectionClass;
 use ReflectionParameter;
 use ReflectionException;
 
-function value(mixed $value): Entry
+function value(mixed $value): callable
 {
-    return new Entry(fn(): mixed => $value);
+    return fn(): mixed => $value;
 }
 
-function alias(string $id): Entry
+function alias(string $id): callable
 {
-    return new Entry(
-        fn(ContainerInterface $container): mixed => $container->get($id)
-    );
+    return fn(ContainerInterface $container): mixed => $container->get($id);
 }
 
-function dynamic(callable $callback): Entry
+function dynamic(callable $callback): callable
 {
-    return new Entry(
-        fn(ContainerInterface $container): mixed => $callback($container)
-    );
+    return fn(ContainerInterface $container): mixed => $callback($container);
 }
 
-function lazyload(callable $callback): Entry
+function lazyload(callable $callback): callable
 {
-    return new Entry(
-        function (ContainerInterface $container) use ($callback): mixed {
-            static $resolved = false;
-            static $value = null;
+    return function (ContainerInterface $container) use ($callback): mixed {
+        static $resolved = false;
+        static $value = null;
 
-            if (!$resolved) {
-                /** @var mixed $value */
-                $value = $callback($container);
-                $resolved = true;
-            }
-
-            return $value;
+        if (!$resolved) {
+            /** @var mixed $value */
+            $value = $callback($container);
+            $resolved = true;
         }
-    );
-}
 
-function entry(Closure $callback): Entry
-{
-    return new Entry($callback);
+        return $value;
+    };
 }
 
 /**
@@ -57,24 +45,22 @@ function entry(Closure $callback): Entry
  * @throws ContainerException
  * @throws ReflectionException
  */
-function objectValue(string $className): Entry
+function objectValue(string $className): callable
 {
     $autowiredParameters = getAutowiredParameters($className);
-    return new Entry(
-        function (ContainerInterface $container) use ($className, $autowiredParameters): mixed {
-            try {
-                $class = new ReflectionClass($className);
-                return $class->newInstance(
-                    ...array_map(
-                        fn(string $paramType): mixed => $container->get($paramType),
-                        $autowiredParameters
-                    )
-                );
-            } catch (NotFoundException $e) {
-                throw new ContainerException("Cannot autowire $className : {$e->getMessage()}");
-            }
+    return function (ContainerInterface $container) use ($className, $autowiredParameters): mixed {
+        try {
+            $class = new ReflectionClass($className);
+            return $class->newInstance(
+                ...array_map(
+                    fn(string $paramType): mixed => $container->get($paramType),
+                    $autowiredParameters
+                )
+            );
+        } catch (NotFoundException $e) {
+            throw new ContainerException("Cannot autowire $className : {$e->getMessage()}");
         }
-    );
+    };
 }
 
 /**
