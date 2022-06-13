@@ -100,7 +100,7 @@ These entries will return the result of the callback you give them. Use them for
 ```php
 use function IngeniozIT\Edict\entry;
 
-$edict->set('entryName', entry(fn() => 42));
+$edict->set('entryName', fn() => 42);
 
 $edict->get('entryName'); // 42
 ```
