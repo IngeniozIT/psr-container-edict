@@ -10,14 +10,16 @@ use IngeniozIT\Edict\{
     ContainerException,
     NotFoundException,
 };
-use IngeniozIT\Edict\Tests\Classes\{
-    ClassThatCannotBeAutowired,
+use IngeniozIT\Edict\Tests\Classes\{ClassThatCannotBeAutowired,
     ClassWithAttributeDependencies,
     ClassWithComplexDependencies,
+    ClassWithInterfaceDependency,
     ClassWithoutDependencies,
     ClassWithSolvableDependencies,
+    ClassWithSolvableDependenciesInterface
 };
 
+use function IngeniozIT\Edict\alias;
 use function IngeniozIT\Edict\value;
 
 class AutowireTest extends TestCase
@@ -62,6 +64,16 @@ class AutowireTest extends TestCase
         $entry = $container->get(ClassWithAttributeDependencies::class);
 
         self::assertInstanceOf(ClassWithAttributeDependencies::class, $entry);
+    }
+
+    public function testAutowiresClassWithInterfaceDependency(): void
+    {
+        $container = new Container();
+        $container->set(ClassWithSolvableDependenciesInterface::class, alias(ClassWithSolvableDependencies::class));
+
+        $entry = $container->get(ClassWithInterfaceDependency::class);
+
+        self::assertInstanceOf(ClassWithInterfaceDependency::class, $entry);
     }
 
     public function testAutowiresClassWithComplexDependencies(): void

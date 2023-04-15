@@ -78,7 +78,7 @@ function getAutowiredParameters(string $className): array
                 return $injectAttribute->newInstance()->entryId;
             }
             $parameterClass = (string)$param->getType();
-            return class_exists($parameterClass) ?
+            return class_exists($parameterClass) || interface_exists($parameterClass) ?
                 $parameterClass :
                 throw new ContainerException("Cannot autowire parameter {$param->getName()} of $className");
         },
