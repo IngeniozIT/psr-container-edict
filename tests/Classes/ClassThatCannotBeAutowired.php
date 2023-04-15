@@ -7,7 +7,7 @@ namespace IngeniozIT\Edict\Tests\Classes;
 class ClassThatCannotBeAutowired
 {
     public function __construct(
-        public int $undecidableValue
+        public int $undecidableValue,
     ) {
     }
 }

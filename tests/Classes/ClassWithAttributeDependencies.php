@@ -9,7 +9,7 @@ use IngeniozIT\Edict\Inject;
 class ClassWithAttributeDependencies
 {
     public function __construct(
-        #[Inject('injectedEntry')] public string $injectedParam
+        #[Inject('injectedEntry')] public string $injectedParam,
     ) {
     }
 }

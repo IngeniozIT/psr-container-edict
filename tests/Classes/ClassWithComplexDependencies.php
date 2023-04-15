@@ -9,11 +9,11 @@ use IngeniozIT\Edict\Inject;
 class ClassWithComplexDependencies
 {
     public function __construct(
-        public ClassWithoutDependencies $noDependencies,
-        public ClassWithSolvableDependencies $solvableDependencies,
-        public ClassWithAttributeDependencies $attributeDependencies,
+        public ClassWithoutDependencies $dependency1,
+        public ClassWithSolvableDependencies $dependency2,
+        public ClassWithAttributeDependencies $dependency3,
         #[Inject('injectedEntry')] public string $injectedParam,
-        #[Inject('anotherInjectedEntry')] public int $anotherInjectedParam
+        #[Inject('anotherInjectedEntry')] public int $anotherInjectedParam,
     ) {
     }
 }

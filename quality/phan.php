@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'target_php_version' => '8.1',
+    'target_php_version' => '8.2',
     'directory_list' => [
         'src/',
         'tests/',
         'vendor/',
     ],
     'exclude_analysis_directory_list' => [
-        'vendor/'
+        'vendor/',
     ],
     'plugins' => [
         'AlwaysReturnPlugin',

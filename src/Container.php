@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace IngeniozIT\Edict;
 
 use Psr\Container\ContainerInterface;
-use ReflectionException;
+use Throwable;
 
 class Container implements ContainerInterface
 {
@@ -24,25 +24,25 @@ class Container implements ContainerInterface
      * @throws ContainerException
      * @throws NotFoundException
      */
-    public function get(string $id): mixed
+    public function get(string $entry): mixed
     {
-        if (!$this->has($id)) {
-            throw $this->autowiring && class_exists($id) ?
-                new ContainerException("Class $id cannot be autowired") :
-                new NotFoundException("Entry $id does not exist");
+        if (!$this->has($entry)) {
+            throw $this->autowiring && class_exists($entry) ?
+                new ContainerException("Class $entry cannot be autowired") :
+                new NotFoundException("Entry $entry does not exist");
         }
 
-        return $this->entries[$id]($this);
+        return $this->entries[$entry]($this);
     }
 
-    public function has(string $id): bool
+    public function has(string $entry): bool
     {
-        return isset($this->entries[$id]) || ($this->autowiring && class_exists($id) && $this->autowire($id));
+        return isset($this->entries[$entry]) || ($this->autowiring && class_exists($entry) && $this->autowire($entry));
     }
 
-    public function set(string $id, callable $value): void
+    public function set(string $entry, callable $value): void
     {
-        $this->entries[$id] = $value;
+        $this->entries[$entry] = $value;
     }
 
     /**
@@ -58,12 +58,12 @@ class Container implements ContainerInterface
     /**
      * @param class-string $className
      */
-    protected function autowire(string $className): bool
+    private function autowire(string $className): bool
     {
         try {
             $this->set($className, objectValue($className));
             return true;
-        } catch (ContainerException | ReflectionException) {
+        } catch (Throwable) {
             return false;
         }
     }

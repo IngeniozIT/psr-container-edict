@@ -14,9 +14,9 @@ function value(mixed $value): callable
     return fn(): mixed => $value;
 }
 
-function alias(string $id): callable
+function alias(string $entry): callable
 {
-    return fn(ContainerInterface $container): mixed => $container->get($id);
+    return fn(ContainerInterface $container): mixed => $container->get($entry);
 }
 
 function dynamic(callable $callback): callable
@@ -78,7 +78,7 @@ function getAutowiredParameters(string $className): array
                 return $injectAttribute->newInstance()->entryId;
             }
             $parameterClass = (string)$param->getType();
-            return class_exists($parameterClass) || interface_exists($parameterClass) ?
+            return class_exists($parameterClass) ?
                 $parameterClass :
                 throw new ContainerException("Cannot autowire parameter {$param->getName()} of $className");
         },
