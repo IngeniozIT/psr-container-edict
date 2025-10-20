@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict\Tests;
+namespace IngeniozIt\Edict\Tests;
 
 use PHPUnit\Framework\TestCase;
-use IngeniozIT\Edict\Container;
+use IngeniozIt\Edict\Container;
 
-use function IngeniozIT\Edict\{alias, dynamic, lazyload, value,};
-
-class EntriesTest extends TestCase
+class ContainerEntriesTest extends TestCase
 {
     public function testResolvesPlainValueEntries(): void
     {
@@ -17,7 +15,7 @@ class EntriesTest extends TestCase
         $expectedValue = 'entry value';
         $container = new Container();
 
-        $container->set($entryId, value($expectedValue));
+        $container->set($entryId, Container::value($expectedValue));
 
         self::assertTrue($container->has($entryId));
         self::assertEquals($expectedValue, $container->get($entryId));
@@ -31,8 +29,8 @@ class EntriesTest extends TestCase
 
         $container = new Container();
 
-        $container->set($entryId, value($expectedValue));
-        $container->set($aliasId, alias($entryId));
+        $container->set($entryId, Container::value($expectedValue));
+        $container->set($aliasId, Container::alias($entryId));
 
         self::assertTrue($container->has($aliasId));
         self::assertEquals($expectedValue, $container->get($aliasId));
@@ -45,7 +43,7 @@ class EntriesTest extends TestCase
         $entryValue = fn() => $expectedValue;
         $container = new Container();
 
-        $container->set($entryId, dynamic($entryValue));
+        $container->set($entryId, Container::dynamic($entryValue));
 
         self::assertTrue($container->has($entryId));
         self::assertEquals($expectedValue, $container->get($entryId));
@@ -62,7 +60,7 @@ class EntriesTest extends TestCase
         };
         $container = new Container();
 
-        $container->set($entryId, dynamic($entryValue));
+        $container->set($entryId, Container::dynamic($entryValue));
 
         self::assertEquals($firstExpectedValue, $container->get($entryId));
         self::assertEquals($secondExpectedValue, $container->get($entryId));
@@ -75,7 +73,7 @@ class EntriesTest extends TestCase
         $entryValue = fn() => $expectedValue;
         $container = new Container();
 
-        $container->set($entryId, lazyload($entryValue));
+        $container->set($entryId, Container::lazyload($entryValue));
 
         self::assertTrue($container->has($entryId));
         self::assertEquals($expectedValue, $container->get($entryId));
@@ -91,7 +89,7 @@ class EntriesTest extends TestCase
         };
         $container = new Container();
 
-        $container->set($entryId, lazyload($entryValue));
+        $container->set($entryId, Container::lazyload($entryValue));
 
         self::assertEquals($expectedValue, $container->get($entryId));
         self::assertEquals($expectedValue, $container->get($entryId));

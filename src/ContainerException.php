@@ -1,6 +1,6 @@
 <?php
 
-namespace IngeniozIT\Edict;
+namespace IngeniozIt\Edict;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict;
+namespace IngeniozIt\Edict;
 
 use Attribute;
 
 #[Attribute(Attribute::TARGET_PARAMETER | Attribute::TARGET_PROPERTY)]
-class Inject
+final readonly class Inject
 {
     public function __construct(
-        public readonly string $entryId
+        public string $entryId
     ) {
     }
 }

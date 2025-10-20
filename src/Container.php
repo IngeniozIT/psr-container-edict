@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict;
+namespace IngeniozIt\Edict;
 
 use Psr\Container\ContainerInterface;
 use Throwable;
 
 class Container implements ContainerInterface
 {
+    use EntryTrait;
+
     /** @var callable[] */
     protected array $entries = [];
 
@@ -16,8 +18,8 @@ class Container implements ContainerInterface
 
     public function __construct()
     {
-        $this->set(self::class, value($this));
-        $this->set(ContainerInterface::class, alias(self::class));
+        $this->set(static::class, static::value($this));
+        $this->set(ContainerInterface::class, static::alias(static::class));
     }
 
     /**
@@ -61,7 +63,7 @@ class Container implements ContainerInterface
     private function autowire(string $className): bool
     {
         try {
-            $this->set($className, objectValue($className));
+            $this->set($className, static::objectValue($className));
             return true;
         } catch (Throwable) {
             return false;

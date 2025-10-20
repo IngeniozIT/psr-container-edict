@@ -2,23 +2,16 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict\Tests;
+namespace IngeniozIt\Edict\Tests;
 
 use PHPUnit\Framework\TestCase;
-use IngeniozIT\Edict\{
+use IngeniozIt\Edict\{
     Container,
     ContainerException,
     NotFoundException
 };
 use Psr\Container\ContainerInterface;
-use IngeniozIT\Edict\Tests\Classes\ClassWithoutDependencies;
-
-use function IngeniozIT\Edict\{
-    alias,
-    dynamic,
-    lazyload,
-    value
-};
+use IngeniozIt\Edict\Tests\Classes\ClassWithoutDependencies;
 
 class ContainerTest extends TestCase
 {
@@ -39,7 +32,7 @@ class ContainerTest extends TestCase
         $container->get(ClassWithoutDependencies::class);
     }
 
-    public function testCanReenableAutowiring(): void
+    public function testCanEnableAutowiring(): void
     {
         $container = new Container();
         $container->disableAutowiring();
@@ -49,7 +42,7 @@ class ContainerTest extends TestCase
         self::assertInstanceOf(ClassWithoutDependencies::class, $container->get(ClassWithoutDependencies::class));
     }
 
-    public function testLinksItselfToContainerClass(): void
+    public function testLinksItselfToTheContainerClass(): void
     {
         $container = new Container();
 
@@ -58,7 +51,7 @@ class ContainerTest extends TestCase
         self::assertSame($container, $edict);
     }
 
-    public function testLinksItselfToPsr11ContainerInterface(): void
+    public function testLinksItselfToThePsrContainerInterface(): void
     {
         $container = new Container();
 
@@ -67,14 +60,14 @@ class ContainerTest extends TestCase
         self::assertSame($container, $edict);
     }
 
-    public function testReturnsFalseWhenEntryDoesNotExist(): void
+    public function testReturnsFalseWhenAnEntryDoesNotExist(): void
     {
         $container = new Container();
 
         self::assertFalse($container->has('non existing entry'));
     }
 
-    public function testThrowsExceptionWhenEntryIsNotFound(): void
+    public function testFailsWhenAnEntryIsNotFound(): void
     {
         $container = new Container();
 
@@ -87,10 +80,10 @@ class ContainerTest extends TestCase
         $container = new Container();
 
         $container->setMany([
-            'entry1' => value(42),
-            'entry2' => alias(ClassWithoutDependencies::class),
-            'entry3' => dynamic(fn() => new ClassWithoutDependencies()),
-            'entry4' => lazyload(fn() => new ClassWithoutDependencies()),
+            'entry1' => Container::value(42),
+            'entry2' => Container::alias(ClassWithoutDependencies::class),
+            'entry3' => Container::dynamic(fn() => new ClassWithoutDependencies()),
+            'entry4' => Container::lazyload(fn() => new ClassWithoutDependencies()),
             'entry5' => fn() => 42,
         ]);
 
@@ -105,7 +98,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container();
 
-        $container->setFromFile(__DIR__ . '/entries.php');
+        $container->setFromFile(__DIR__ . '/Files/entries.php');
 
         self::assertEquals(42, $container->get('entry1'));
         self::assertInstanceOf(ClassWithoutDependencies::class, $container->get('entry2'));
@@ -114,7 +107,7 @@ class ContainerTest extends TestCase
         self::assertEquals(42, $container->get('entry5'));
     }
 
-    public function testThrowsExceptionWhenFileDoesNotExist(): void
+    public function testFailsWhenTheFileDoesNotExist(): void
     {
         $container = new Container();
 

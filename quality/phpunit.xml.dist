@@ -14,8 +14,8 @@
   <testsuites>
     <testsuite name="Test Suite">
       <file>../tests/ContainerTest.php</file>
-      <file>../tests/EntriesTest.php</file>
-      <file>../tests/AutowireTest.php</file>
+      <file>../tests/ContainerAutowiringTest.php</file>
+      <file>../tests/ContainerEntriesTest.php</file>
     </testsuite>
   </testsuites>
   <logging/>

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict\Tests\Classes;
+namespace IngeniozIt\Edict\Tests\Classes;
 
-use IngeniozIT\Edict\Inject;
+use IngeniozIt\Edict\Inject;
 
 class ClassWithComplexDependencies
 {

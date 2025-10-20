@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict\Tests;
+namespace IngeniozIt\Edict\Tests;
 
 use PHPUnit\Framework\TestCase;
-use IngeniozIT\Edict\{
+use IngeniozIt\Edict\{
     Container,
     ContainerException,
     NotFoundException,
 };
-use IngeniozIT\Edict\Tests\Classes\{ClassThatCannotBeAutowired,
+use IngeniozIt\Edict\Tests\Classes\{ClassThatCannotBeAutowired,
     ClassWithAttributeDependencies,
     ClassWithComplexDependencies,
     ClassWithInterfaceDependency,
@@ -19,12 +19,9 @@ use IngeniozIT\Edict\Tests\Classes\{ClassThatCannotBeAutowired,
     ClassWithSolvableDependenciesInterface
 };
 
-use function IngeniozIT\Edict\alias;
-use function IngeniozIT\Edict\value;
-
-class AutowireTest extends TestCase
+class ContainerAutowiringTest extends TestCase
 {
-    public function testCanManuallyInstantiateNonAutowirableClass(): void
+    public function testCanManuallyInstantiateAClass(): void
     {
         $container = new Container();
         $container->set(
@@ -37,7 +34,7 @@ class AutowireTest extends TestCase
         self::assertInstanceOf(ClassThatCannotBeAutowired::class, $entry);
     }
 
-    public function testAutowiresClassWithoutDependencies(): void
+    public function testAutowiresClassesWithoutDependencies(): void
     {
         $container = new Container();
 
@@ -46,7 +43,7 @@ class AutowireTest extends TestCase
         self::assertInstanceOf(ClassWithoutDependencies::class, $entry);
     }
 
-    public function testAutowiresClassWithExplicitDependency(): void
+    public function testAutowiresClassesWithExplicitDependencies(): void
     {
         $container = new Container();
 
@@ -55,41 +52,41 @@ class AutowireTest extends TestCase
         self::assertInstanceOf(ClassWithSolvableDependencies::class, $entry);
     }
 
-    public function testAutowiresClassWithAttributeDependency(): void
+    public function testAutowiresClassesWithAttributeDependencies(): void
     {
         $container = new Container();
         // ClassWithAttributeDependencies needs 'injectedEntry' to be set
-        $container->set('injectedEntry', value('injectedValue'));
+        $container->set('injectedEntry', Container::value('injectedValue'));
 
         $entry = $container->get(ClassWithAttributeDependencies::class);
 
         self::assertInstanceOf(ClassWithAttributeDependencies::class, $entry);
     }
 
-    public function testAutowiresClassWithInterfaceDependency(): void
+    public function testAutowiresClassesWithInterfaceDependencies(): void
     {
         $container = new Container();
-        $container->set(ClassWithSolvableDependenciesInterface::class, alias(ClassWithSolvableDependencies::class));
+        $container->set(ClassWithSolvableDependenciesInterface::class, Container::alias(ClassWithSolvableDependencies::class));
 
         $entry = $container->get(ClassWithInterfaceDependency::class);
 
         self::assertInstanceOf(ClassWithInterfaceDependency::class, $entry);
     }
 
-    public function testAutowiresClassWithComplexDependencies(): void
+    public function testAutowiresClassesWithComplexDependencies(): void
     {
         $container = new Container();
         // ClassWithComplexDependencies needs 'injectedEntry' and
         // 'anotherInjectedEntry' to be set
-        $container->set('injectedEntry', value('injectedValue'));
-        $container->set('anotherInjectedEntry', value(42));
+        $container->set('injectedEntry', Container::value('injectedValue'));
+        $container->set('anotherInjectedEntry', Container::value(42));
 
         $entry = $container->get(ClassWithComplexDependencies::class);
 
         self::assertInstanceOf(ClassWithComplexDependencies::class, $entry);
     }
 
-    public function testThrowsExceptionWhenAutowiringInexistantClass(): void
+    public function testFailsWhenAutowiringANonExistantClass(): void
     {
         $container = new Container();
 
@@ -97,7 +94,7 @@ class AutowireTest extends TestCase
         $container->get('\\Class\\That\\Does\\Not\\Exist');
     }
 
-    public function testThrowsExceptionWhenAutowiringNonAutowirableClass(): void
+    public function testFailsWhenAutowiringANonAutowirableClass(): void
     {
         $container = new Container();
 
@@ -105,7 +102,7 @@ class AutowireTest extends TestCase
         $container->get(ClassThatCannotBeAutowired::class);
     }
 
-    public function testThrowsExceptionWhenAutowiringClassWithMissingAttribute(): void
+    public function testFailsWhenAutowiringAClassWithMissingAttributes(): void
     {
         $container = new Container();
 

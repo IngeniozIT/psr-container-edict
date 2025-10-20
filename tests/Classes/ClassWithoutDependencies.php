@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace IngeniozIT\Edict\Tests\Classes;
+namespace IngeniozIt\Edict\Tests\Classes;
 
 class ClassWithoutDependencies
 {

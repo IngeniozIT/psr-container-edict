@@ -1,6 +1,6 @@
 <?php
 
-namespace IngeniozIT\Edict;
+namespace IngeniozIt\Edict;
 
 use OutOfBoundsException;
 use Psr\Container\NotFoundExceptionInterface;
