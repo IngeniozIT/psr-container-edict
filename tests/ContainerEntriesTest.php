@@ -7,6 +7,9 @@ namespace IngeniozIt\Edict\Tests;
 use PHPUnit\Framework\TestCase;
 use IngeniozIt\Edict\Container;
 
+/**
+ * @SuppressWarnings("PHPMD.StaticAccess")
+ */
 class ContainerEntriesTest extends TestCase
 {
     public function testResolvesPlainValueEntries(): void
@@ -55,6 +58,7 @@ class ContainerEntriesTest extends TestCase
         $firstExpectedValue = 0;
         $secondExpectedValue = 1;
         $entryValue = function () {
+            /** @var int $returnValue */
             static $returnValue = 0;
             return $returnValue++;
         };
@@ -84,6 +88,7 @@ class ContainerEntriesTest extends TestCase
         $entryId = 'entry id';
         $expectedValue = 0;
         $entryValue = function () {
+            /** @var int $returnValue */
             static $returnValue = 0;
             return $returnValue++;
         };

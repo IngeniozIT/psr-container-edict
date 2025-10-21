@@ -12,6 +12,7 @@ class ClassWithComplexDependencies
         public ClassWithoutDependencies $dependency1,
         public ClassWithSolvableDependencies $dependency2,
         public ClassWithAttributeDependencies $dependency3,
+        public ClassWithSolvableDependenciesInterface $dependency4,
         #[Inject('injectedEntry')] public string $injectedParam,
         #[Inject('anotherInjectedEntry')] public int $anotherInjectedParam,
     ) {

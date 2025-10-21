@@ -13,6 +13,9 @@ use IngeniozIt\Edict\{
 use Psr\Container\ContainerInterface;
 use IngeniozIt\Edict\Tests\Classes\ClassWithoutDependencies;
 
+/**
+ * @SuppressWarnings("PHPMD.StaticAccess")
+ */
 class ContainerTest extends TestCase
 {
     public function testIsAPsrContainer(): void

@@ -7,33 +7,25 @@ namespace IngeniozIt\Edict\Tests;
 use PHPUnit\Framework\TestCase;
 use IngeniozIt\Edict\{
     Container,
-    ContainerException,
-    NotFoundException,
 };
 use IngeniozIt\Edict\Tests\Classes\{ClassThatCannotBeAutowired,
+    ClassWithAttributesAndDefaultValues,
     ClassWithAttributeDependencies,
     ClassWithComplexDependencies,
+    ClassWithDefaultValuesDependencies,
     ClassWithInterfaceDependency,
     ClassWithoutDependencies,
     ClassWithSolvableDependencies,
-    ClassWithSolvableDependenciesInterface
-};
+    ClassWithSolvableDependenciesInterface};
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * @SuppressWarnings("PHPMD.StaticAccess")
+ * @SuppressWarnings("PHPMD.TooManyPublicMethods")
+ */
 class ContainerAutowiringTest extends TestCase
 {
-    public function testCanManuallyInstantiateAClass(): void
-    {
-        $container = new Container();
-        $container->set(
-            ClassThatCannotBeAutowired::class,
-            fn() => new ClassThatCannotBeAutowired(42)
-        );
-
-        $entry = $container->get(ClassThatCannotBeAutowired::class);
-
-        self::assertInstanceOf(ClassThatCannotBeAutowired::class, $entry);
-    }
-
     public function testAutowiresClassesWithoutDependencies(): void
     {
         $container = new Container();
@@ -80,17 +72,38 @@ class ContainerAutowiringTest extends TestCase
         // 'anotherInjectedEntry' to be set
         $container->set('injectedEntry', Container::value('injectedValue'));
         $container->set('anotherInjectedEntry', Container::value(42));
+        $container->set(ClassWithSolvableDependenciesInterface::class, Container::alias(ClassWithSolvableDependencies::class));
 
         $entry = $container->get(ClassWithComplexDependencies::class);
 
         self::assertInstanceOf(ClassWithComplexDependencies::class, $entry);
     }
 
+    public function testAutowiresClassesWithDefaultValues(): void
+    {
+        $container = new Container();
+
+        $entry = $container->get(ClassWithDefaultValuesDependencies::class);
+
+        self::assertInstanceOf(ClassWithDefaultValuesDependencies::class, $entry);
+    }
+
+    public function testAttributeTakesPrecedenceOverDefaultValue(): void
+    {
+        $container = new Container();
+        $container->set('injectedEntry', Container::value('injectedValue'));
+
+        /** @var ClassWithAttributesAndDefaultValues $entry */
+        $entry = $container->get(ClassWithAttributesAndDefaultValues::class);
+
+        self::assertEquals('injectedValue', $entry->defaultValue);
+    }
+
     public function testFailsWhenAutowiringANonExistantClass(): void
     {
         $container = new Container();
 
-        $this->expectException(NotFoundException::class);
+        $this->expectException(NotFoundExceptionInterface::class);
         $container->get('\\Class\\That\\Does\\Not\\Exist');
     }
 
@@ -98,7 +111,7 @@ class ContainerAutowiringTest extends TestCase
     {
         $container = new Container();
 
-        $this->expectException(ContainerException::class);
+        $this->expectException(ContainerExceptionInterface::class);
         $container->get(ClassThatCannotBeAutowired::class);
     }
 
@@ -106,8 +119,17 @@ class ContainerAutowiringTest extends TestCase
     {
         $container = new Container();
 
-        $this->expectException(ContainerException::class);
+        $this->expectException(ContainerExceptionInterface::class);
         // ClassWithAttributeDependencies needs 'injectedEntry' to be set
         $container->get(ClassWithAttributeDependencies::class);
+    }
+
+    public function testFailsWhenAutowiringIsDisabled(): void
+    {
+        $container = new Container();
+        $container->disableAutowiring();
+
+        $this->expectException(ContainerExceptionInterface::class);
+        $container->get(ClassWithoutDependencies::class);
     }
 }

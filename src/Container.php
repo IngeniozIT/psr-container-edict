@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace IngeniozIt\Edict;
 
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Throwable;
 
 class Container implements ContainerInterface
 {
@@ -18,8 +18,8 @@ class Container implements ContainerInterface
 
     public function __construct()
     {
-        $this->set(static::class, static::value($this));
-        $this->set(ContainerInterface::class, static::alias(static::class));
+        $this->set(static::class, self::value($this));
+        $this->set(ContainerInterface::class, self::alias(static::class));
     }
 
     /**
@@ -29,9 +29,11 @@ class Container implements ContainerInterface
     public function get(string $entry): mixed
     {
         if (!$this->has($entry)) {
-            throw $this->autowiring && class_exists($entry) ?
-                new ContainerException("Class $entry cannot be autowired") :
-                new NotFoundException("Entry $entry does not exist");
+            throw new NotFoundException(
+                class_exists($entry) ?
+                "Class $entry exists, but autowiring is disabled" :
+                "Entry $entry cannot be autowired"
+            );
         }
 
         return $this->entries[$entry]($this);
@@ -39,7 +41,21 @@ class Container implements ContainerInterface
 
     public function has(string $entry): bool
     {
-        return isset($this->entries[$entry]) || ($this->autowiring && class_exists($entry) && $this->autowire($entry));
+        if (isset($this->entries[$entry])) {
+            return true;
+        }
+
+        if (!$this->autowiring) {
+            return false;
+        }
+
+        try {
+            $this->set($entry, self::autowire($entry));
+        } catch (ContainerExceptionInterface) {
+            return false;
+        }
+
+        return true;
     }
 
     public function set(string $entry, callable $value): void
@@ -54,19 +70,6 @@ class Container implements ContainerInterface
     {
         foreach ($entries as $entryId => $entryValue) {
             $this->set($entryId, $entryValue);
-        }
-    }
-
-    /**
-     * @param class-string $className
-     */
-    private function autowire(string $className): bool
-    {
-        try {
-            $this->set($className, static::objectValue($className));
-            return true;
-        } catch (Throwable) {
-            return false;
         }
     }
 
@@ -89,6 +92,8 @@ class Container implements ContainerInterface
             throw new ContainerException("File $filename does not exist");
         }
 
-        $this->setMany(require $filename);
+        /** @var iterable<string, callable> $entries */
+        $entries = include $filename;
+        $this->setMany($entries);
     }
 }

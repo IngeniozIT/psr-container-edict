@@ -6,7 +6,6 @@ namespace IngeniozIt\Edict;
 
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionParameter;
 
 trait EntryTrait
@@ -54,49 +53,55 @@ trait EntryTrait
         };
     }
 
-    /**
-     * @param class-string $className
-     * @throws ContainerException
-     * @throws ReflectionException
-     */
-    protected static function objectValue(string $className): callable
+    private static function autowire(string $className): callable
     {
-        $autowiredParameters = self::getAutowiredParameters($className);
-        return function (ContainerInterface $container) use ($className, $autowiredParameters): mixed {
-            try {
-                $class = new ReflectionClass($className);
-                return $class->newInstance(
-                    ...array_map(
-                        fn(string $paramType): mixed => $container->get($paramType),
-                        $autowiredParameters
-                    )
-                );
-            } catch (NotFoundException $e) {
-                throw new ContainerException("Cannot autowire $className : {$e->getMessage()}");
-            }
+        if (!class_exists($className)) {
+            throw new NotFoundException("Class $className cannot be autowired : it does not exist.");
+        }
+
+        $parametersEntries = self::getConstructorEntries($className);
+
+        return function (ContainerInterface $container) use ($className, $parametersEntries): mixed {
+            return new $className(...array_map(
+                fn(callable $parameterCallable): mixed => $parameterCallable($container),
+                $parametersEntries
+            ));
         };
     }
 
     /**
      * @param class-string $className
-     * @return array<class-string|string>
-     * @throws ContainerException
-     * @throws ReflectionException
+     * @return callable[]
      */
-    protected static function getAutowiredParameters(string $className): array
+    private static function getConstructorEntries(string $className): array
     {
+        $parameters = (new ReflectionClass($className))->getConstructor()?->getParameters() ?? [];
+
         return array_map(
-            function (ReflectionParameter $param) use ($className): string {
-                $injectAttribute = $param->getAttributes(Inject::class)[0] ?? null;
-                if ($injectAttribute !== null) {
-                    return $injectAttribute->newInstance()->entryId;
-                }
-                $parameterClass = (string)$param->getType();
-                return class_exists($parameterClass) || interface_exists($parameterClass) ?
-                    $parameterClass :
-                    throw new ContainerException("Cannot autowire parameter {$param->getName()} of $className");
-            },
-            (new ReflectionClass($className))->getConstructor()?->getParameters() ?? []
+            self::getEntryFromParameter(...),
+            $parameters,
         );
+    }
+
+    private static function getEntryFromParameter(ReflectionParameter $parameter): callable
+    {
+        $entryName = self::getEntryNameFromParameter($parameter);
+
+        return $parameter->isDefaultValueAvailable() ?
+            fn(ContainerInterface $container): mixed => (
+                $container->has($entryName) ?
+                    $container->get($entryName) :
+                    $parameter->getDefaultValue()
+            ) :
+            self::alias($entryName);
+    }
+
+    private static function getEntryNameFromParameter(ReflectionParameter $parameter): string
+    {
+        $injectAttribute = $parameter->getAttributes(Inject::class)[0] ?? null;
+
+        return $injectAttribute !== null ?
+            $injectAttribute->newInstance()->entryId :
+            (string)$parameter->getType();
     }
 }
